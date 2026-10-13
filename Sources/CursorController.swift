@@ -59,13 +59,23 @@ enum CursorController {
     static var fill: RGBA? { (copyFill?()?.takeRetainedValue()).flatMap(RGBA.init(cgColor:)) }
     static var outline: RGBA? { (copyOutline?()?.takeRetainedValue()).flatMap(RGBA.init(cgColor:)) }
 
-    /// The private setters only stage the value in this process's preferences
-    /// cache. Synchronizing flushes it so the system redraws the pointer now,
-    /// not on the next change.
+    private typealias VoidFn = @convention(c) () -> Void
+    private static let accessibilityFoundation = dlopen(
+        "/System/Library/PrivateFrameworks/AccessibilitySupport.framework/Versions/A/Frameworks/AccessibilityFoundation.framework/Versions/A/AccessibilityFoundation", RTLD_NOW)
+    private static let registerCursors: VoidFn? = accessibilityFoundation
+        .flatMap { dlsym($0, "AXFCursorRegisterAll") }.map { unsafeBitCast($0, to: VoidFn.self) }
+    private static let unregisterCursors: VoidFn? = accessibilityFoundation
+        .flatMap { dlsym($0, "AXFCursorUnregisterAll") }.map { unsafeBitCast($0, to: VoidFn.self) }
+
+    /// The private setters only stage the values in preferences. Like System
+    /// Settings, we then flush them and re-register the system pointer images,
+    /// which redraws them in the new colors right away.
     static func setColors(fill: RGBA, outline: RGBA) {
         setOutline?(outline.cgColor)
         setFill?(fill.cgColor)
         CFPreferencesAppSynchronize(domain)
+        unregisterCursors?()
+        registerCursors?()
     }
 
     // MARK: Permissions

@@ -22,8 +22,8 @@ ARCH=universal ./build.sh
 
 | Feature | How | Permission |
 |---|---|---|
-| Size | `CGSSetCursorScale` (private CoreGraphics). Goes past System Settings' 4× limit; the app saves up to 4× to the system and re-applies larger sizes on launch | none |
-| Fill / outline color | `_AXInterfaceSetCursorColorFill/Outline` (private UniversalAccess, same calls System Settings uses) | **Full Disk Access**: macOS rejects writes to `com.apple.universalaccess` without it |
+| Size | `CGSSetCursorScale` (private CoreGraphics). Goes past System Settings' 4× limit up to macOS's real 10× cap; the app saves up to 4× to the system and re-applies larger sizes on launch | none |
+| Fill / outline color | `_AXInterfaceSetCursorColorFill/Outline` to save, then `AXFCursorRegisterAll` to redraw the pointer images (private HIServices / AccessibilityFoundation, same calls System Settings uses) | **Full Disk Access**: macOS rejects writes to `com.apple.universalaccess` without it |
 | Touch Bar | private system-modal Touch Bar + Control Strip calls | none |
 
 Run `scripts/setup-signing.sh` once per Mac. It creates a self-signed "BetterPointer Self-Signed" certificate in your login keychain, and `build.sh` signs with it automatically. That gives the app a stable identity, so Full Disk Access survives rebuilds. Without it, builds are ad-hoc signed and you must remove and re-add BetterPointer in Full Disk Access after every build. Override with `SIGN_IDENTITY="Developer ID Application: …"`.
