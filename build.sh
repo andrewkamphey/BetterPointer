@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Builds dist/BetterPointer.app with the Command Line Tools (no Xcode needed).
+#
+#   ./build.sh             build dist/BetterPointer.app
+#   ./build.sh --install   build, copy to /Applications, and launch
+#
+# Env:
+#   ARCH=universal         build arm64 + x86_64 (default: this Mac's arch)
+#   SIGN_IDENTITY="Name"   codesign identity. Defaults to "BetterPointer Self-Signed"
+#                          if scripts/setup-signing.sh has been run, else ad-hoc "-".
+#                          A stable identity keeps Full Disk Access across rebuilds.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+APP_NAME=BetterPointer
+BUNDLE_ID=com.betterpointer.BetterPointer
+APP="dist/$APP_NAME.app"
+ARCH="${ARCH:-$(uname -m)}"
+SELF_SIGNED="BetterPointer Self-Signed"
+if [[ -z "${SIGN_IDENTITY:-}" ]]; then
+    if security find-certificate -c "$SELF_SIGNED" >/dev/null 2>&1; then
+        SIGN_IDENTITY="$SELF_SIGNED"
+    else
+        SIGN_IDENTITY="-"
+        echo "Note: ad-hoc signing. Run scripts/setup-signing.sh once so Full Disk Access survives rebuilds."
+    fi
+fi
+SDK="$(xcrun --show-sdk-path)"
+
+rm -rf "$APP"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" build
+
+compile() {
+    swiftc -O -parse-as-library -sdk "$SDK" -target "$1-apple-macos13.0" Sources/*.swift -o "$2"
+}
+
+echo "Compiling ($ARCH)…"
+if [[ "$ARCH" == universal ]]; then
+    compile arm64 build/$APP_NAME-arm64
+    compile x86_64 build/$APP_NAME-x86_64
+    lipo -create build/$APP_NAME-arm64 build/$APP_NAME-x86_64 -output "$APP/Contents/MacOS/$APP_NAME"
+else
+    compile "$ARCH" "$APP/Contents/MacOS/$APP_NAME"
+fi
+
+cp Resources/Info.plist "$APP/Contents/Info.plist"
+[[ -f Resources/AppIcon.icns ]] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+
+codesign --force --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
+echo "Built $APP (signed: $SIGN_IDENTITY)"
+
+if [[ "${1:-}" == "--install" ]]; then
+    pkill -x "$APP_NAME" 2>/dev/null || true
+    rm -rf "/Applications/$APP_NAME.app"
+    cp -R "$APP" /Applications/
+    open "/Applications/$APP_NAME.app"
+    echo "Installed to /Applications/$APP_NAME.app"
+fi

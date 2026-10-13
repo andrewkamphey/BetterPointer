@@ -1,0 +1,5 @@
+dist/
+build/
+spike/*
+!spike/*.swift
+.DS_Store
