@@ -1,6 +1,6 @@
 # BetterPointer
 
-A macOS menu bar app (macOS 13+) that changes the system pointer's size (1–4×), fill color, and outline color live, without opening System Settings.
+A macOS menu bar app (macOS 13+) that changes the system pointer's size (1–10×), fill color, and outline color live, without opening System Settings.
 
 - Built-in presets: Default, Large, High Contrast, Presentation
 - Custom presets: save, rename/update, delete (stored in UserDefaults)
@@ -22,7 +22,7 @@ ARCH=universal ./build.sh
 
 | Feature | How | Permission |
 |---|---|---|
-| Size | `CGSSetCursorScale` (private CoreGraphics) | none |
+| Size | `CGSSetCursorScale` (private CoreGraphics). Goes past System Settings' 4× limit; the app saves up to 4× to the system and re-applies larger sizes on launch | none |
 | Fill / outline color | `_AXInterfaceSetCursorColorFill/Outline` (private UniversalAccess, same calls System Settings uses) | **Full Disk Access**: macOS rejects writes to `com.apple.universalaccess` without it |
 | Touch Bar | private system-modal Touch Bar + Control Strip calls | none |
 

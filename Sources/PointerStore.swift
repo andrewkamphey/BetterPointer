@@ -17,6 +17,7 @@ final class PointerStore: ObservableObject {
 
     private static let presetsKey = "customPresets"
     private static let touchBarKey = "touchBarPresetIDs"
+    private static let sizeKey = "size"
     private var persistSizeWork: DispatchWorkItem?
     private var applyColorsWork: DispatchWorkItem?
     private let colorPanel = ColorPanelBridge()
@@ -24,7 +25,15 @@ final class PointerStore: ObservableObject {
     private var lastTouchBarActiveID: UUID?
 
     init() {
-        size = CursorController.size
+        // The system only keeps up to 4×, so restore a larger size ourselves.
+        let systemSize = CursorController.size
+        let savedSize = UserDefaults.standard.double(forKey: Self.sizeKey)
+        if savedSize > CursorController.systemMaxSize, systemSize >= CursorController.systemMaxSize - 0.01 {
+            CursorController.setSize(savedSize, persist: false)
+            size = savedSize
+        } else {
+            size = systemSize
+        }
         fill = CursorController.fill ?? .black
         outline = CursorController.outline ?? .white
         loadPresets()
@@ -58,7 +67,10 @@ final class PointerStore: ObservableObject {
         CursorController.setSize(newSize, persist: false)
         updateTouchBarIfActiveChanged()
         persistSizeWork?.cancel()
-        let work = DispatchWorkItem { CursorController.setSize(newSize, persist: true) }
+        let work = DispatchWorkItem {
+            CursorController.setSize(newSize, persist: true)
+            UserDefaults.standard.set(newSize, forKey: Self.sizeKey)
+        }
         persistSizeWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
     }

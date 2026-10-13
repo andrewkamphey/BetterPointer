@@ -12,7 +12,10 @@ import CoreGraphics
 /// They write `cursorFill` / `cursorOutline` in com.apple.universalaccess, which
 /// macOS only allows for processes with Full Disk Access.
 enum CursorController {
-    static let sizeRange: ClosedRange<Double> = 1...4
+    static let sizeRange: ClosedRange<Double> = 1...10
+    /// System Settings' own maximum. Larger sizes render fine, but only this
+    /// much is written to the system preference; the app re-applies the rest.
+    static let systemMaxSize: Double = 4
 
     private static let domain = "com.apple.universalaccess" as CFString
     private static let sizeKey = "mouseDriverCursorSize" as CFString
@@ -41,12 +44,12 @@ enum CursorController {
         return Double(scale)
     }
 
-    /// Applies the size live. `persist` also saves it so it survives logout.
+    /// Applies the size live. `persist` also saves it (capped at 4×) so it survives logout.
     static func setSize(_ size: Double, persist: Bool) {
         let clamped = min(max(size, sizeRange.lowerBound), sizeRange.upperBound)
         _ = CGSSetCursorScale(CGSMainConnectionID(), Float(clamped))
         if persist {
-            CFPreferencesSetValue(sizeKey, NSNumber(value: clamped), domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+            CFPreferencesSetValue(sizeKey, NSNumber(value: min(clamped, systemMaxSize)), domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
             CFPreferencesSynchronize(domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
         }
     }
