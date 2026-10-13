@@ -18,6 +18,8 @@ final class PointerStore: ObservableObject {
     private var persistSizeWork: DispatchWorkItem?
     private var applyColorsWork: DispatchWorkItem?
     private let colorPanel = ColorPanelBridge()
+    /// Set for README screenshots: shows fixed values and never touches the system.
+    private var isSnapshot = false
 
     init() {
         // The system only keeps up to 4×, so restore a larger size ourselves.
@@ -34,6 +36,15 @@ final class PointerStore: ObservableObject {
         loadPresets()
     }
 
+    /// A store showing `preset` as the current pointer, for rendering screenshots.
+    init(snapshotOf preset: Preset) {
+        size = preset.size
+        fill = preset.fill
+        outline = preset.outline
+        hasFullDiskAccess = true
+        isSnapshot = true
+    }
+
     var allPresets: [Preset] { Preset.builtIns + customPresets }
 
     var activePresetID: UUID? {
@@ -44,6 +55,7 @@ final class PointerStore: ObservableObject {
 
     /// Re-reads system state, e.g. after the user changed it in System Settings.
     func refresh() {
+        guard !isSnapshot else { return }
         size = CursorController.size
         fill = CursorController.fill ?? fill
         outline = CursorController.outline ?? outline

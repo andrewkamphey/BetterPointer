@@ -10,13 +10,13 @@ NSGraphicsContext.saveGraphicsState()
 NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
 let ctx = NSGraphicsContext.current!.cgContext
 
-func srgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> NSColor { NSColor(srgbRed: r, green: g, blue: b, alpha: 1) }
+func srgb(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat, _ a: CGFloat = 1) -> NSColor { NSColor(srgbRed: r, green: g, blue: b, alpha: a) }
 
 // Background
-NSGradient(colors: [srgb(0.07, 0.07, 0.11), srgb(0.14, 0.13, 0.22)])!.draw(in: NSRect(x: 0, y: 0, width: W, height: H), angle: -60)
+NSGradient(colors: [srgb(0.07, 0.07, 0.11), srgb(0.13, 0.16, 0.32)])!.draw(in: NSRect(x: 0, y: 0, width: W, height: H), angle: -35)
 
 /// Classic arrow pointer with its tip at `tip` (origin bottom-left), `height` tall.
-func pointer(tip: CGPoint, height: CGFloat, fill: [NSColor], outline: NSColor) {
+func pointer(tip: CGPoint, height: CGFloat, fill: NSColor, outline: NSColor) {
     let unit: [CGPoint] = [(0, 0), (0, 0.80), (0.19, 0.62), (0.32, 0.93), (0.45, 0.87), (0.32, 0.57), (0.57, 0.57)]
         .map { CGPoint(x: $0.0, y: $0.1) }
     let s = height / 0.93
@@ -28,35 +28,45 @@ func pointer(tip: CGPoint, height: CGFloat, fill: [NSColor], outline: NSColor) {
     path.close()
     path.lineJoinStyle = .round
     ctx.saveGState()
-    ctx.setShadow(offset: CGSize(width: 0, height: -height * 0.03), blur: height * 0.08,
-                  color: NSColor.black.withAlphaComponent(0.45).cgColor)
+    ctx.setShadow(offset: CGSize(width: 0, height: -height * 0.03), blur: height * 0.1,
+                  color: NSColor.black.withAlphaComponent(0.5).cgColor)
     outline.setStroke(); path.lineWidth = height * 0.075; path.stroke()
     ctx.restoreGState()
-    if fill.count > 1 { NSGradient(colors: fill)!.draw(in: path, angle: -60) } else { fill[0].setFill(); path.fill() }
+    fill.setFill(); path.fill()
 }
 
-// Text
 func text(_ s: String, at p: CGPoint, size: CGFloat, weight: NSFont.Weight, color: NSColor) {
     NSAttributedString(string: s, attributes: [.font: NSFont.systemFont(ofSize: size, weight: weight), .foregroundColor: color])
         .draw(at: p)
 }
-text("BetterPointer", at: CGPoint(x: 80, y: 370), size: 96, weight: .heavy, color: .white)
-text("Change your Mac's pointer size and colors", at: CGPoint(x: 84, y: 300), size: 34, weight: .medium, color: srgb(0.82, 0.82, 0.9))
-text("live, right from the menu bar.", at: CGPoint(x: 84, y: 256), size: 34, weight: .medium, color: srgb(0.82, 0.82, 0.9))
-text("1×–10×  ·  Fill & outline  ·  Custom presets", at: CGPoint(x: 84, y: 150), size: 26, weight: .semibold,
-     color: srgb(0.62, 0.6, 0.95))
-text("Free & open source for macOS 13+", at: CGPoint(x: 84, y: 105), size: 24, weight: .regular, color: srgb(0.55, 0.55, 0.65))
+text("BetterPointer", at: CGPoint(x: 70, y: 400), size: 92, weight: .heavy, color: .white)
+text("Make your Mac's pointer", at: CGPoint(x: 74, y: 330), size: 38, weight: .semibold, color: srgb(0.88, 0.88, 0.95))
+text("impossible to miss.", at: CGPoint(x: 74, y: 284), size: 38, weight: .semibold, color: srgb(0.88, 0.88, 0.95))
+text("For screen recordings, demos & video calls.", at: CGPoint(x: 74, y: 210), size: 27, weight: .semibold,
+     color: srgb(0.45, 0.65, 1))
+text("1×–10× · any fill & outline · one-click presets", at: CGPoint(x: 74, y: 168), size: 23, weight: .regular,
+     color: srgb(0.65, 0.65, 0.75))
+text("Free & open source for macOS 13+", at: CGPoint(x: 74, y: 90), size: 22, weight: .medium, color: srgb(0.5, 0.5, 0.6))
 
-// Pointers growing in size and style, bottoms aligned
-let rainbow = [srgb(1, 0.23, 0.19), srgb(1, 0.58, 0), srgb(1, 0.84, 0), srgb(0.2, 0.82, 0.35), srgb(0, 0.55, 1), srgb(0.69, 0.32, 0.87)]
-let base: CGFloat = 150
-let styles: [(x: CGFloat, h: CGFloat, fill: [NSColor], outline: NSColor)] = [
-    (730, 80, [.black], .white),
-    (810, 130, [srgb(1, 0.85, 0)], .black),
-    (915, 190, [srgb(1, 0.2, 0.25)], .white),
-    (1050, 320, rainbow, srgb(0.08, 0.08, 0.1)),
-]
-for st in styles { pointer(tip: CGPoint(x: st.x, y: base + st.h), height: st.h, fill: st.fill, outline: st.outline) }
+// The real menu, rendered by scripts/snapshot-menu.sh
+let menu = NSImage(contentsOfFile: "docs/menu-dark.png")!
+let menuH: CGFloat = 576
+let menuW = menuH * menu.size.width / menu.size.height
+let menuRect = NSRect(x: 800, y: (H - menuH) / 2, width: menuW, height: menuH)
+let clip = NSBezierPath(roundedRect: menuRect, xRadius: 14, yRadius: 14)
+ctx.saveGState()
+ctx.setShadow(offset: CGSize(width: 0, height: -12), blur: 40, color: NSColor.black.withAlphaComponent(0.6).cgColor)
+srgb(0.18, 0.18, 0.2).setFill(); clip.fill()
+ctx.restoreGState()
+ctx.saveGState()
+clip.addClip()
+menu.draw(in: menuRect)
+ctx.restoreGState()
+srgb(1, 1, 1, 0.12).setStroke(); clip.lineWidth = 1.5; clip.stroke()
+
+// Big pointer in the "Screen Recording" preset's colors, tapping its row
+let rowY = menuRect.maxY - menuH * (387.0 / 972.0)
+pointer(tip: CGPoint(x: menuRect.minX + menuW * 0.9, y: rowY - 4), height: 170, fill: srgb(0, 0.45, 1), outline: .white)
 
 NSGraphicsContext.restoreGraphicsState()
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "docs/social-preview.png"))

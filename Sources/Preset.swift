@@ -57,6 +57,7 @@ struct Preset: Identifiable, Codable, Hashable {
         builtIn(2, "Large", size: 2.5, fill: .black, outline: .white),
         builtIn(3, "High Contrast", size: 2, fill: .yellow, outline: .black),
         builtIn(4, "Presentation", size: 3, fill: .red, outline: .white),
+        builtIn(5, "Screen Recording", size: 2, fill: RGBA(red: 0, green: 0.45, blue: 1), outline: .white),
     ]
 
     /// Built-ins get fixed IDs so they stay stable across launches.
