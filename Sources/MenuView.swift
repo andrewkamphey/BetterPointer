@@ -130,13 +130,6 @@ private struct PresetRow: View {
             }
             .buttonStyle(.plain)
 
-            Button { store.toggleTouchBar(preset) } label: {
-                Image(systemName: store.isInTouchBar(preset) ? "pin.fill" : "pin")
-            }
-            .buttonStyle(.borderless)
-            .opacity(store.isInTouchBar(preset) || hovering ? 1 : 0)
-            .help(store.isInTouchBar(preset) ? "Remove from Touch Bar" : "Add to Touch Bar")
-
             if !preset.isBuiltIn {
                 Button { store.beginEditing(preset) } label: { Image(systemName: "pencil") }
                     .buttonStyle(.borderless)
@@ -151,7 +144,6 @@ private struct PresetRow: View {
         .background(hovering ? Color.primary.opacity(0.08) : .clear, in: RoundedRectangle(cornerRadius: 5))
         .onHover { hovering = $0 }
         .contextMenu {
-            Button(store.isInTouchBar(preset) ? "Remove from Touch Bar" : "Add to Touch Bar") { store.toggleTouchBar(preset) }
             if !preset.isBuiltIn {
                 Button("Edit") { store.beginEditing(preset) }
                 Button("Delete", role: .destructive) { store.delete(preset) }

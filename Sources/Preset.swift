@@ -59,7 +59,7 @@ struct Preset: Identifiable, Codable, Hashable {
         builtIn(4, "Presentation", size: 3, fill: .red, outline: .white),
     ]
 
-    /// Built-ins get fixed IDs so Touch Bar choices survive relaunches.
+    /// Built-ins get fixed IDs so they stay stable across launches.
     private static func builtIn(_ n: Int, _ name: String, size: Double, fill: RGBA, outline: RGBA) -> Preset {
         Preset(id: UUID(uuidString: String(format: "00000000-0000-0000-0000-%012d", n))!,
                name: name, size: size, fill: fill, outline: outline, isBuiltIn: true)

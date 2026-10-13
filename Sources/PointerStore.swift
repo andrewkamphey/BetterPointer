@@ -12,17 +12,12 @@ final class PointerStore: ObservableObject {
     @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
     /// The custom preset being edited, if any.
     @Published var editingPresetID: UUID?
-    /// Presets shown in the Touch Bar, in the order they were added.
-    @Published private(set) var touchBarPresetIDs: [UUID] = []
 
     private static let presetsKey = "customPresets"
-    private static let touchBarKey = "touchBarPresetIDs"
     private static let sizeKey = "size"
     private var persistSizeWork: DispatchWorkItem?
     private var applyColorsWork: DispatchWorkItem?
     private let colorPanel = ColorPanelBridge()
-    private var touchBar: TouchBarController!
-    private var lastTouchBarActiveID: UUID?
 
     init() {
         // The system only keeps up to 4×, so restore a larger size ourselves.
@@ -37,9 +32,6 @@ final class PointerStore: ObservableObject {
         fill = CursorController.fill ?? .black
         outline = CursorController.outline ?? .white
         loadPresets()
-        touchBarPresetIDs = (UserDefaults.standard.stringArray(forKey: Self.touchBarKey) ?? []).compactMap(UUID.init)
-        touchBar = TouchBarController { [weak self] preset in self?.apply(preset) }
-        updateTouchBar()
     }
 
     var allPresets: [Preset] { Preset.builtIns + customPresets }
@@ -57,7 +49,6 @@ final class PointerStore: ObservableObject {
         outline = CursorController.outline ?? outline
         hasFullDiskAccess = CursorController.hasFullDiskAccess
         launchAtLogin = SMAppService.mainApp.status == .enabled
-        updateTouchBarIfActiveChanged()
     }
 
     // MARK: Live adjustments
@@ -65,7 +56,6 @@ final class PointerStore: ObservableObject {
     func setSize(_ newSize: Double) {
         size = newSize
         CursorController.setSize(newSize, persist: false)
-        updateTouchBarIfActiveChanged()
         persistSizeWork?.cancel()
         let work = DispatchWorkItem {
             CursorController.setSize(newSize, persist: true)
@@ -91,7 +81,6 @@ final class PointerStore: ObservableObject {
         let work = DispatchWorkItem { [fill, outline] in CursorController.setColors(fill: fill, outline: outline) }
         applyColorsWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.08, execute: work)
-        updateTouchBarIfActiveChanged()
     }
 
     func apply(_ preset: Preset) {
@@ -100,7 +89,6 @@ final class PointerStore: ObservableObject {
         outline = preset.outline
         applyColorsWork?.cancel()
         CursorController.setColors(fill: fill, outline: outline)
-        updateTouchBarIfActiveChanged()
     }
 
     enum ColorTarget { case fill, outline }
@@ -133,14 +121,12 @@ final class PointerStore: ObservableObject {
         customPresets[index].outline = outline
         editingPresetID = nil
         savePresets()
-        updateTouchBar()
     }
 
     func delete(_ preset: Preset) {
         customPresets.removeAll { $0.id == preset.id }
         if editingPresetID == preset.id { editingPresetID = nil }
         savePresets()
-        if touchBarPresetIDs.contains(preset.id) { toggleTouchBar(preset) }
     }
 
     private func loadPresets() {
@@ -153,31 +139,6 @@ final class PointerStore: ObservableObject {
     private func savePresets() {
         guard let data = try? JSONEncoder().encode(customPresets) else { return }
         UserDefaults.standard.set(String(decoding: data, as: UTF8.self), forKey: Self.presetsKey)
-    }
-
-    // MARK: Touch Bar
-
-    func isInTouchBar(_ preset: Preset) -> Bool { touchBarPresetIDs.contains(preset.id) }
-
-    func toggleTouchBar(_ preset: Preset) {
-        if let index = touchBarPresetIDs.firstIndex(of: preset.id) {
-            touchBarPresetIDs.remove(at: index)
-        } else {
-            touchBarPresetIDs.append(preset.id)
-        }
-        UserDefaults.standard.set(touchBarPresetIDs.map(\.uuidString), forKey: Self.touchBarKey)
-        updateTouchBar()
-    }
-
-    private func updateTouchBar() {
-        let presets = touchBarPresetIDs.compactMap { id in allPresets.first { $0.id == id } }
-        lastTouchBarActiveID = activePresetID
-        touchBar.update(presets: presets, activeID: lastTouchBarActiveID)
-    }
-
-    /// Moves the Touch Bar checkmark only when the matching preset changes.
-    private func updateTouchBarIfActiveChanged() {
-        if activePresetID != lastTouchBarActiveID { updateTouchBar() }
     }
 
     // MARK: Launch at login

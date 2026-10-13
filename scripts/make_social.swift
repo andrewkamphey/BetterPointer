@@ -43,7 +43,7 @@ func text(_ s: String, at p: CGPoint, size: CGFloat, weight: NSFont.Weight, colo
 text("BetterPointer", at: CGPoint(x: 80, y: 370), size: 96, weight: .heavy, color: .white)
 text("Change your Mac's pointer size and colors", at: CGPoint(x: 84, y: 300), size: 34, weight: .medium, color: srgb(0.82, 0.82, 0.9))
 text("live, right from the menu bar.", at: CGPoint(x: 84, y: 256), size: 34, weight: .medium, color: srgb(0.82, 0.82, 0.9))
-text("1×–10×  ·  Fill & outline  ·  Presets  ·  Touch Bar", at: CGPoint(x: 84, y: 150), size: 26, weight: .semibold,
+text("1×–10×  ·  Fill & outline  ·  Custom presets", at: CGPoint(x: 84, y: 150), size: 26, weight: .semibold,
      color: srgb(0.62, 0.6, 0.95))
 text("Free & open source for macOS 13+", at: CGPoint(x: 84, y: 105), size: 24, weight: .regular, color: srgb(0.55, 0.55, 0.65))
 
