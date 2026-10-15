@@ -56,7 +56,7 @@
   nav .links a { color: var(--muted); }
 
   /* hero */
-  .hero { padding: 56px 0 40px; text-align: center; position: relative; }
+  .hero { padding: 40px 0 72px; text-align: left; position: relative; }
   .hero h1 {
     font-size: clamp(56px, 10vw, 128px);
     line-height: 0.92;
@@ -65,7 +65,7 @@
     font-weight: 900;
   }
   .hero h1 .q { background: var(--rainbow); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero .sub { font-size: clamp(20px, 2.6vw, 28px); color: var(--text); margin: 0 auto 6px; font-weight: 650; }
+  .hero .sub { font-size: clamp(22px, 2.6vw, 30px); color: var(--text); margin: 0 0 8px; font-weight: 700; }
   .hero .joke { color: var(--muted); margin: 0 0 30px; }
   .btn {
     display: inline-flex; align-items: center; gap: 10px;
@@ -78,34 +78,16 @@
   .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); box-shadow: none; }
   .fine { color: var(--faint); font-size: 14px; margin-top: 14px; }
 
-  /* playground */
-  .play {
-    margin: 46px auto 0; max-width: 880px; background: linear-gradient(180deg, var(--panel), #12142199);
-    border: 1px solid var(--line); border-radius: 24px; padding: 22px; text-align: left;
+  /* hero art: a giant translucent rainbow pointer behind the hero */
+  .hero-zone { position: relative; overflow: hidden; }
+  .hero-art {
+    position: absolute; z-index: 0; pointer-events: none;
+    top: 24px; right: -90px; width: min(60vw, 700px); height: auto; opacity: 0.5;
   }
-  .play-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
-  .play-head b { font-size: 18px; }
-  .play-head span { color: var(--muted); font-size: 15px; }
-  .stage {
-    position: relative; height: 300px; margin: 16px 0; border-radius: 16px; overflow: hidden;
-    background:
-      linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 40px,
-      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 110px 100%,
-      #f7f8fb;
-    cursor: none;
-  }
-  .stage .cell { position: absolute; left: 330px; top: 120px; width: 110px; height: 40px; border: 2px solid #1a73e8; }
-  .stage .hint {
-    position: absolute; inset: 14px 0 auto; text-align: center; color: #5b6075; font-size: 14px; pointer-events: none;
-  }
-  #fake { position: absolute; left: 0; top: 0; pointer-events: none; transform-origin: 0 0; will-change: transform; }
-  .controls { display: grid; grid-template-columns: auto 1fr auto; gap: 12px 16px; align-items: center; }
-  .controls label { color: var(--muted); font-size: 15px; }
-  input[type=range] { width: 100%; accent-color: var(--blue); }
-  .size-out { font-variant-numeric: tabular-nums; font-weight: 800; min-width: 52px; text-align: right; }
-  .swatches { display: flex; gap: 9px; flex-wrap: wrap; grid-column: 2 / 4; }
-  .sw { width: 26px; height: 26px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.25); cursor: pointer; padding: 0; }
-  .sw[aria-pressed=true] { outline: 2px solid var(--blue-soft); outline-offset: 3px; }
+  .hero-zone .wrap { position: relative; z-index: 1; }
+  .hero-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 48px; align-items: center; }
+  .hero-shot { justify-self: center; width: min(100%, 340px); }
+  .hero-shot img { width: 100%; height: auto; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 30px 90px rgba(0,0,0,0.55); display: block; }
 
   /* sections */
   section { padding: 72px 0; }
@@ -161,67 +143,65 @@
   footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 
   @media (max-width: 860px) {
-    .chat, .split { grid-template-columns: 1fr; }
+    .chat, .split, .hero-grid { grid-template-columns: 1fr; }
+    .hero { text-align: center; }
+    .hero-art { width: 120vw; right: -45vw; top: -20px; opacity: 0.35; }
     .grid { grid-template-columns: 1fr 1fr; }
-    .stage .cell { left: 40%; }
   }
   @media (max-width: 560px) {
     .wrap { padding: 0 16px; }
     .grid { grid-template-columns: 1fr; }
     nav .links a.hide-sm { display: none; }
-    .controls { grid-template-columns: 1fr auto; }
-    .controls label { grid-column: 1 / 3; }
-    .swatches { grid-column: 1 / 3; }
     .rel { grid-template-columns: 1fr; gap: 4px; }
-    .stage { height: 240px; }
   }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
 
-<div class="wrap">
-  <nav>
-    <a class="brand" href="#"><img src="assets/icon.png" alt="">Where's My Mouse?</a>
-    <div class="links">
-      <a class="hide-sm" href="#features">Features</a>
-      <a class="hide-sm" href="#faq">FAQ</a>
-      <a href="https://github.com/andrewkamphey/WheresMyMouse">GitHub</a>
-    </div>
-  </nav>
+<div class="hero-zone">
+  <svg class="hero-art" viewBox="0 0 62 100" aria-hidden="true">
+    <defs>
+      <linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff3b30"/><stop offset="0.2" stop-color="#ff9500"/>
+        <stop offset="0.4" stop-color="#ffd60a"/><stop offset="0.6" stop-color="#34c759"/>
+        <stop offset="0.8" stop-color="#0a84ff"/><stop offset="1" stop-color="#af52de"/>
+      </linearGradient>
+    </defs>
+    <!-- the classic arrow, 30× -->
+    <path d="M4 4 V90 L24.4 70.7 L38.4 104 L52.4 97.6 L38.4 65 L65.3 65 Z" transform="scale(0.93)"
+          fill="url(#rainbow)" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
+  </svg>
 
-  <header class="hero">
-    <h1>Where's My<br><span class="q">Mouse?</span></h1>
-    <p class="sub">It's right there. It's enormous now.</p>
-    <p class="joke">Make your Mac's pointer impossible to miss. That's the whole app.</p>
-    <a class="btn" href="https://github.com/andrewkamphey/WheresMyMouse/releases/latest/download/WheresMyMouse.dmg">
-      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.6 1.2-.1 1.7-.8 3.2-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM13.9 5c.7-.8 1.1-1.9 1-3-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.2-.6 2.9-1.4z"/></svg>
-      Download for Mac
-    </a>
-    <p class="fine">Free &amp; open source · macOS 13+ · Apple Silicon &amp; Intel</p>
+  <div class="wrap">
+    <nav>
+      <a class="brand" href="#"><img src="assets/icon.png" alt="">Where's My Mouse?</a>
+      <div class="links">
+        <a class="hide-sm" href="#features">Features</a>
+        <a class="hide-sm" href="#faq">FAQ</a>
+        <a href="https://github.com/andrewkamphey/WheresMyMouse">GitHub</a>
+      </div>
+    </nav>
 
-    <div class="play" id="play">
-      <div class="play-head">
-        <b>Try it right here 👇</b>
-        <span>Move your mouse over the sheet, then drag the size.</span>
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <h1>Where's My<br><span class="q">Mouse?</span></h1>
+          <p class="sub">It's right there. It's enormous now.</p>
+          <p class="joke">Make your Mac's pointer up to 30× bigger, in any color, from the menu bar. That's the whole app.</p>
+          <a class="btn" href="https://github.com/andrewkamphey/WheresMyMouse/releases/latest/download/WheresMyMouse.dmg">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.6 1.2-.1 1.7-.8 3.2-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM13.9 5c.7-.8 1.1-1.9 1-3-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.2-.6 2.9-1.4z"/></svg>
+            Download for Mac
+          </a>
+          <p class="fine">Free &amp; open source · macOS 13+ · Apple Silicon &amp; Intel</p>
+        </div>
+        <div class="hero-shot">
+          <img src="assets/menu-dark.png" width="300" height="651"
+               alt="The Where's My Mouse? menu: presets with pinned apps, a size slider, fill and outline colors, and app rules">
+        </div>
       </div>
-      <div class="stage" id="stage" aria-label="A demo area where your pointer grows">
-        <div class="cell"></div>
-        <svg id="fake" width="20" height="30" viewBox="0 0 20 30" aria-hidden="true">
-          <path id="fake-path" d="M1.1 1.1 V22.9 L6.3 18.0 L9.9 26.6 L13.4 24.9 L9.9 16.6 L16.7 16.6 Z"
-                fill="#000" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/>
-        </svg>
-        <div class="hint" id="hint">Your pointer, at 1×. Where'd it go?</div>
-      </div>
-      <div class="controls">
-        <label for="size">Size</label>
-        <input id="size" type="range" min="1" max="30" step="0.5" value="1">
-        <output class="size-out" id="size-out" for="size">1×</output>
-        <label>Color</label>
-        <div class="swatches" id="swatches"></div>
-      </div>
-    </div>
-  </header>
+    </header>
+  </div>
 </div>
 
 <section>
@@ -268,7 +248,7 @@
 </section>
 
 <section>
-  <div class="wrap split">
+  <div class="wrap">
     <div>
       <div class="kicker">The menu</div>
       <h2>Everything in one little menu.</h2>
@@ -285,7 +265,6 @@
         <span class="chip">🖥️ Big &amp; multi-monitor setups</span>
       </div>
     </div>
-    <img src="assets/menu-dark.png" width="300" height="651" alt="The Where's My Mouse? menu with presets, a size slider, color swatches and app rules">
   </div>
 </section>
 
@@ -331,56 +310,6 @@
   </div>
 </footer>
 
-<script>
-  // The playground: a drawn pointer follows the mouse inside the sheet at the chosen size and color.
-  (function () {
-    var stage = document.getElementById('stage');
-    var fake = document.getElementById('fake');
-    var path = document.getElementById('fake-path');
-    var size = document.getElementById('size');
-    var out = document.getElementById('size-out');
-    var hint = document.getElementById('hint');
-    var swatches = document.getElementById('swatches');
-    var colors = [
-      ['#000000', '#ffffff'], ['#ff3b30', '#ffffff'], ['#ffd60a', '#000000'], ['#34c759', '#000000'],
-      ['#0a84ff', '#ffffff'], ['#af52de', '#ffffff'], ['#ff5fb0', '#ffffff']
-    ];
-    var x = 330, y = 140, scale = 1;
 
-    colors.forEach(function (c, i) {
-      var b = document.createElement('button');
-      b.className = 'sw';
-      b.style.background = c[0];
-      b.setAttribute('aria-label', 'Pointer color ' + (i + 1));
-      b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
-      b.addEventListener('click', function () {
-        path.setAttribute('fill', c[0]);
-        path.setAttribute('stroke', c[1]);
-        swatches.querySelectorAll('.sw').forEach(function (s) { s.setAttribute('aria-pressed', 'false'); });
-        b.setAttribute('aria-pressed', 'true');
-      });
-      swatches.appendChild(b);
-    });
-
-    function render() {
-      fake.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + scale + ')';
-    }
-    function setSize(v) {
-      scale = Number(v);
-      out.textContent = (scale % 1 ? scale.toFixed(1) : scale) + '×';
-      hint.textContent = scale < 2 ? "Your pointer, at 1×. Where'd it go?"
-        : scale < 6 ? 'Better. Keep going.'
-        : scale < 15 ? 'Now everyone on the call sees it.'
-        : 'Visible from space. 🛰️';
-    }
-    stage.addEventListener('pointermove', function (e) {
-      var r = stage.getBoundingClientRect();
-      x = e.clientX - r.left; y = e.clientY - r.top;
-      render();
-    });
-    size.addEventListener('input', function () { setSize(size.value); render(); });
-    setSize(size.value); render();
-  })();
-</script>
 </body>
 </html>
