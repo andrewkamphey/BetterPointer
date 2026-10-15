@@ -109,6 +109,111 @@
   .bubble.me .msg { background: var(--blue); border-color: transparent; border-radius: 16px 16px 4px 16px; }
   .bubble.oh .msg { background: #fff; color: #0d0e16; font-weight: 900; font-size: 22px; }
 
+  /* desktop mockups: a Mac screen with a wallpaper, windows and pointers */
+  .desk {
+    position: relative; aspect-ratio: 16 / 10; border-radius: 20px; overflow: hidden; margin-top: 30px;
+    border: 1px solid var(--line); box-shadow: 0 40px 120px rgba(0,0,0,0.55);
+    background:
+      radial-gradient(60% 80% at 15% 20%, #ff6aa2 0%, transparent 60%),
+      radial-gradient(55% 70% at 85% 15%, #ffb35c 0%, transparent 60%),
+      radial-gradient(70% 90% at 70% 90%, #6b5bff 0%, transparent 65%),
+      radial-gradient(60% 70% at 10% 95%, #23c4d6 0%, transparent 60%),
+      linear-gradient(135deg, #3b1f6e, #1b2a6b);
+  }
+  .menubar {
+    position: absolute; left: 0; right: 0; top: 0; height: 3.4%; display: flex; align-items: center; gap: 1.6%;
+    padding: 0 1.6%; background: rgba(255,255,255,0.28); backdrop-filter: blur(10px);
+    color: #111; font-size: clamp(7px, 1vw, 13px); font-weight: 600;
+  }
+  .menubar .sp { flex: 1; }
+  .menubar img { height: 70%; }
+  .win {
+    position: absolute; border-radius: 1.2% / 1.9%; overflow: hidden; background: #fff;
+    box-shadow: 0 2.5% 6% rgba(0,0,0,0.35); border: 1px solid rgba(0,0,0,0.12);
+  }
+  .win .tb { height: 6.5%; min-height: 10px; background: #ececf0; display: flex; align-items: center; gap: 1.2%; padding: 0 2%; font-size: clamp(6px, 0.9vw, 12px); font-weight: 700; color: #444; }
+  .win .tb i { width: 1.6%; aspect-ratio: 1; border-radius: 50%; background: #ff5f57; }
+  .win .tb i:nth-child(2) { background: #febc2e; } .win .tb i:nth-child(3) { background: #28c840; }
+  .win .tb span { margin-left: 2%; }
+  .desk .ptr { position: absolute; overflow: visible; filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35)); }
+  .desk .ptr.tiny { width: 1.15%; filter: none; }
+  .desk .ptr.big { width: 15%; }
+  .cap {
+    position: absolute; left: 2.5%; bottom: 4%; background: rgba(13,14,22,0.82); color: #fff;
+    padding: 0.6em 1em; border-radius: 999px; font-weight: 800; font-size: clamp(11px, 1.4vw, 17px);
+  }
+  .cap em { font-style: normal; color: var(--muted); font-weight: 600; }
+
+  /* showcase: 1× then 15× in three colors, 3s each */
+  .cycle4 > * { opacity: 0; animation: show4 12s infinite; }
+  .cycle4 > :nth-child(1) { animation-delay: -12s; }
+  .cycle4 > :nth-child(2) { animation-delay: -9s; }
+  .cycle4 > :nth-child(3) { animation-delay: -6s; }
+  .cycle4 > :nth-child(4) { animation-delay: -3s; }
+  @keyframes show4 { 0%, 23% { opacity: 1; } 25%, 100% { opacity: 0; } }
+
+  /* app rules: Claude in front, then Google Sheets, 4s each */
+  .cycle2 > * { opacity: 0; animation: show2 8s infinite; }
+  .cycle2 > :nth-child(1) { animation-delay: -8s; }
+  .cycle2 > :nth-child(2) { animation-delay: -4s; }
+  @keyframes show2 { 0%, 46% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .layer { position: absolute; inset: 0; }
+
+  /* window contents */
+  .chatui { position: absolute; inset: 6.5% 0 0 0; background: #f5f1ea; }
+  .chatui b { position: absolute; left: 12%; height: 5%; border-radius: 6px; background: #e3dccd; }
+  .chatui b.me { left: auto; right: 10%; background: #d9c7a8; }
+  .chatui .box { position: absolute; left: 10%; right: 10%; bottom: 7%; height: 11%; border-radius: 10px; background: #fff; border: 1px solid #ddd3c2; }
+  .sheetui { position: absolute; inset: 6.5% 0 0 0; background:
+      linear-gradient(#e2e3e8 1px, transparent 1px) 0 8% / 100% 7.5%,
+      linear-gradient(90deg, #e2e3e8 1px, transparent 1px) 0 0 / 14% 100%, #fff; }
+  .sheetui::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8%; background: #e8f3ea; }
+  .sheetui .sel { position: absolute; left: 28%; top: 38%; width: 14%; height: 7.5%; border: 2px solid #1a73e8; }
+  .rule {
+    position: absolute; right: 2.5%; top: 6%; background: rgba(13,14,22,0.85); color: #fff; border-radius: 12px;
+    padding: 0.6em 0.9em; font-size: clamp(10px, 1.25vw, 15px); font-weight: 700; display: flex; align-items: center; gap: 0.6em;
+  }
+  .rule .dot { width: 0.9em; height: 0.9em; border-radius: 50%; }
+  @media (prefers-reduced-motion: reduce) {
+    .cycle4 > *, .cycle2 > * { animation: none; }
+    .cycle4 > :nth-child(2), .cycle2 > :nth-child(1) { opacity: 1; }
+  }
+
+  /* use cases: a before/after scene, then the problem and the fix */
+  .uses-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
+  .use { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+  .use h3 { margin: 16px 0 10px; font-size: 22px; letter-spacing: -0.01em; }
+  .use p { margin: 0 0 8px; color: var(--muted); font-size: 15.5px; }
+  .use p b { color: var(--text); }
+  .use .fix b { color: var(--blue-soft); }
+  .scenes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .scene { position: relative; aspect-ratio: 16 / 10; border-radius: 10px; overflow: hidden; background: #f4f5f9; }
+  .scene .tag { position: absolute; left: 8px; bottom: 7px; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; }
+  .scene.before .tag { background: rgba(0,0,0,0.55); color: #fff; }
+  .scene.after .tag { background: var(--blue); color: #fff; }
+  .scene svg.ptr { position: absolute; }
+  .scene.before svg.ptr { width: 7px; left: 58%; top: 46%; }
+  .scene.after svg.ptr { width: 34%; left: 50%; top: 24%; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
+  /* scene props */
+  .bar { position: absolute; left: 10%; height: 6%; border-radius: 4px; background: #d9dbe5; }
+  .rec { position: absolute; right: 7px; top: 7px; background: #e5352c; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 999px; }
+  .play { position: absolute; left: 8%; right: 8%; bottom: 20%; height: 4%; background: #d9dbe5; border-radius: 4px; }
+  .play::before { content: ""; position: absolute; inset: 0 55% 0 0; background: #e5352c; border-radius: 4px; }
+  .step { position: absolute; left: 8%; top: 12%; background: #1a73e8; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
+  .btnmock { position: absolute; left: 44%; top: 40%; width: 26%; height: 14%; border-radius: 6px; background: #1a73e8; }
+  .board { background: #2f4f3a; }
+  .board .chalk { position: absolute; left: 10%; height: 4%; border-radius: 3px; background: rgba(255,255,255,0.75); }
+  .heads { position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background:
+      radial-gradient(circle at 12% 100%, #1b1d29 18%, transparent 19%),
+      radial-gradient(circle at 34% 100%, #1b1d29 18%, transparent 19%),
+      radial-gradient(circle at 56% 100%, #1b1d29 18%, transparent 19%),
+      radial-gradient(circle at 78% 100%, #1b1d29 18%, transparent 19%),
+      radial-gradient(circle at 96% 100%, #1b1d29 18%, transparent 19%); }
+  .slide { background: linear-gradient(135deg, #1d2452, #3a1f5c); }
+  .slide .title { position: absolute; left: 9%; top: 14%; width: 50%; height: 9%; border-radius: 4px; background: rgba(255,255,255,0.9); }
+  .slide .chart { position: absolute; left: 9%; bottom: 18%; width: 46%; height: 40%; display: flex; align-items: flex-end; gap: 8%; }
+  .slide .chart i { flex: 1; background: rgba(255,255,255,0.6); border-radius: 2px 2px 0 0; }
+
   /* features */
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 30px; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; }
@@ -143,6 +248,7 @@
   footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
 
   @media (max-width: 860px) {
+    .uses-grid { grid-template-columns: 1fr; }
     .chat, .split, .hero-grid { grid-template-columns: 1fr; }
     .hero { text-align: center; }
     .hero-art { width: 120vw; right: -45vw; top: -20px; opacity: 0.35; }
@@ -177,6 +283,7 @@
     <nav>
       <a class="brand" href="#"><img src="assets/icon.png" alt="">Where's My Mouse?</a>
       <div class="links">
+        <a class="hide-sm" href="#uses">Use cases</a>
         <a class="hide-sm" href="#features">Features</a>
         <a class="hide-sm" href="#faq">FAQ</a>
         <a href="https://github.com/andrewkamphey/WheresMyMouse">GitHub</a>
@@ -205,6 +312,30 @@
   </div>
 </div>
 
+<section id="showcase">
+  <div class="wrap">
+    <h2>Your whole screen. Your tiny pointer.</h2>
+    <p class="lead">Here's a normal Mac at normal size. Somewhere on it is your pointer. Then here's the same screen with Where's My Mouse? turned on.</p>
+    <div class="desk" role="img" aria-label="A Mac desktop: first the tiny default pointer, then a 15× pointer in blue, pink and yellow">
+      <div class="menubar"><span>●</span><span>Finder</span><span>File</span><span>Edit</span><span>View</span><span class="sp"></span><img src="assets/favicon.png" alt=""><span>Tue 10:41</span></div>
+      <div class="win" style="left:9%;top:14%;width:44%;height:52%"><div class="tb"><i></i><i></i><i></i><span>Notes</span></div><div class="chatui" style="background:#fffdf7"><b style="top:10%;width:60%"></b><b style="top:22%;width:46%"></b><b style="top:34%;width:52%"></b></div></div>
+      <div class="win" style="left:48%;top:30%;width:42%;height:50%"><div class="tb"><i></i><i></i><i></i><span>Budget.xlsx</span></div><div class="sheetui"><span class="sel"></span></div></div>
+      <div class="cycle4">
+        <svg class="ptr tiny" viewBox="0 0 62 100" style="left:62%;top:47%" aria-hidden="true"><use href="#arrow" fill="#000" stroke="#fff"/></svg>
+        <svg class="ptr big" viewBox="0 0 62 100" style="left:55%;top:30%" aria-hidden="true"><use href="#arrow" fill="#0a84ff" stroke="#fff"/></svg>
+        <svg class="ptr big" viewBox="0 0 62 100" style="left:55%;top:30%" aria-hidden="true"><use href="#arrow" fill="#ff5fb0" stroke="#fff"/></svg>
+        <svg class="ptr big" viewBox="0 0 62 100" style="left:55%;top:30%" aria-hidden="true"><use href="#arrow" fill="#ffd60a" stroke="#000"/></svg>
+      </div>
+      <div class="cycle4">
+        <span class="cap">1× <em>· the default. Found it yet?</em></span>
+        <span class="cap">15× <em>· Big Blue</em></span>
+        <span class="cap">15× <em>· Hot Pink</em></span>
+        <span class="cap">15× <em>· Sunshine</em></span>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section>
   <div class="wrap">
     <h2>"Can you see my mouse?"</h2>
@@ -228,6 +359,81 @@
       <div class="bubble"><div class="avatar" style="background:#ff9500">P</div><div class="msg"><small>Priya</small>what are you pointing at</div></div>
       <div class="bubble"><div class="avatar" style="background:#34c759">L</div><div class="msg"><small>Leo</small>🤷</div></div>
       <div class="bubble oh"><div class="avatar" style="background:#ff9500">P</div><div class="msg">OH.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="uses">
+  <div class="wrap">
+    <h2>Made for the moments people are watching.</h2>
+    <p class="lead">A pointer only has to be findable by you. Until someone else is looking at your screen.</p>
+
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs><path id="arrow" d="M4 4 V90 L24.4 70.7 L38.4 104 L52.4 97.6 L38.4 65 L65.3 65 Z" transform="scale(0.93)" stroke-width="5" stroke-linejoin="round"/></defs>
+    </svg>
+
+    <div class="uses-grid">
+      <article class="use">
+        <div class="scenes" aria-hidden="true">
+          <div class="scene before "><span class="rec">● REC</span><span class="bar" style="top:16%;width:55%"></span><span class="bar" style="top:28%;width:40%"></span><span class="bar" style="top:40%;width:48%"></span><span class="play"></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#000" stroke="#fff"/></svg><span class="tag">Before</span></div>
+          <div class="scene after "><span class="rec">● REC</span><span class="bar" style="top:16%;width:55%"></span><span class="bar" style="top:28%;width:40%"></span><span class="bar" style="top:40%;width:48%"></span><span class="play"></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#0a84ff" stroke="#fff"/></svg><span class="tag">After</span></div>
+        </div>
+        <h3>For screen recording</h3>
+        <p><b>The problem:</b> your viewers watch on phones. After compression, a 16-point pointer is a smudge, and the comments fill up with “where did you click?”</p>
+        <p class="fix"><b>The fix:</b> pin a big blue “Recording” preset to OBS or Loom. Open the app and the pointer grows on its own; quit it and you're back to normal.</p>
+      </article>
+
+      <article class="use">
+        <div class="scenes" aria-hidden="true">
+          <div class="scene before "><span class="step">Step 3: click Save</span><span class="bar" style="top:28%;width:30%"></span><span class="btnmock"></span><span class="bar" style="top:64%;width:52%"></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#000" stroke="#fff"/></svg><span class="tag">Before</span></div>
+          <div class="scene after "><span class="step">Step 3: click Save</span><span class="bar" style="top:28%;width:30%"></span><span class="btnmock"></span><span class="bar" style="top:64%;width:52%"></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#ffd60a" stroke="#000"/></svg><span class="tag">After</span></div>
+        </div>
+        <h3>For education &amp; tutorials</h3>
+        <p><b>The problem:</b> step-by-step tutorials live or die on “click here.” When viewers can't follow the pointer, they pause, rewind, and give up.</p>
+        <p class="fix"><b>The fix:</b> a bright, oversized pointer is your built-in highlighter. Every click is obvious, with no zoom effects or editing tricks afterward.</p>
+      </article>
+
+      <article class="use">
+        <div class="scenes" aria-hidden="true">
+          <div class="scene before board"><span class="chalk" style="top:16%;width:46%"></span><span class="chalk" style="top:28%;width:60%"></span><span class="chalk" style="top:40%;width:34%"></span><span class="heads"></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#000" stroke="#fff"/></svg><span class="tag">Before</span></div>
+          <div class="scene after board"><span class="chalk" style="top:16%;width:46%"></span><span class="chalk" style="top:28%;width:60%"></span><span class="chalk" style="top:40%;width:34%"></span><span class="heads"></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#ff5fb0" stroke="#fff"/></svg><span class="tag">After</span></div>
+        </div>
+        <h3>For teachers</h3>
+        <p><b>The problem:</b> from the back row, a projected pointer disappears, and students on a shared screen at home see even less.</p>
+        <p class="fix"><b>The fix:</b> one click to a huge, high-contrast pointer for class, one click back to Default after. It helps low-vision students too.</p>
+      </article>
+
+      <article class="use">
+        <div class="scenes" aria-hidden="true">
+          <div class="scene before slide"><span class="title"></span><span class="chart"><i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:95%"></i></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#000" stroke="#fff"/></svg><span class="tag">Before</span></div>
+          <div class="scene after slide"><span class="title"></span><span class="chart"><i style="height:40%"></i><i style="height:70%"></i><i style="height:55%"></i><i style="height:95%"></i></span><svg class="ptr" viewBox="0 0 62 100" aria-hidden="true"><use href="#arrow" fill="#ff3b30" stroke="#fff"/></svg><span class="tag">After</span></div>
+        </div>
+        <h3>For presentations</h3>
+        <p><b>The problem:</b> you say “right over here” on a conference screen and three hundred people look everywhere except where you're pointing.</p>
+        <p class="fix"><b>The fix:</b> give Keynote or your browser a big red “Presenting” preset. It switches on automatically whenever that app is in front.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="app-rules">
+  <div class="wrap">
+    <h2>Every app gets its own pointer.</h2>
+    <p class="lead">Pin a preset to an app. Switch to Claude and your pointer turns big and blue. Click into Google Sheets and it goes red. Quit them and it's back to Default. Follow the app you're using, or the last one you opened.</p>
+    <div class="desk" role="img" aria-label="App rules: with Claude in front the pointer is big and blue; with Google Sheets in front it is big and red">
+      <div class="menubar"><span>●</span><span>File</span><span>Edit</span><span>View</span><span class="sp"></span><img src="assets/favicon.png" alt=""><span>Tue 10:41</span></div>
+      <div class="cycle2">
+        <div class="layer">
+          <div class="win" style="left:40%;top:22%;width:52%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Google Sheets</span></div><div class="sheetui"><span class="sel"></span></div></div><div class="win" style="left:7%;top:12%;width:50%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Claude</span></div><div class="chatui"><b class="me" style="top:10%;width:38%"></b><b style="top:22%;width:62%"></b><b style="top:31%;width:55%"></b><b style="top:40%;width:44%"></b><span class="box"></span></div></div>
+          <svg class="ptr big" viewBox="0 0 62 100" style="left:30%;top:34%" aria-hidden="true"><use href="#arrow" fill="#0a84ff" stroke="#fff"/></svg>
+          <span class="rule"><span class="dot" style="background:#0a84ff"></span>Claude → Big Blue</span>
+        </div>
+        <div class="layer">
+          <div class="win" style="left:7%;top:12%;width:50%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Claude</span></div><div class="chatui"><b class="me" style="top:10%;width:38%"></b><b style="top:22%;width:62%"></b><b style="top:31%;width:55%"></b><b style="top:40%;width:44%"></b><span class="box"></span></div></div><div class="win" style="left:40%;top:22%;width:52%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Google Sheets</span></div><div class="sheetui"><span class="sel"></span></div></div>
+          <svg class="ptr big" viewBox="0 0 62 100" style="left:62%;top:40%" aria-hidden="true"><use href="#arrow" fill="#ff3b30" stroke="#fff"/></svg>
+          <span class="rule"><span class="dot" style="background:#ff3b30"></span>Google Sheets → Red</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
