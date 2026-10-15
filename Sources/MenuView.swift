@@ -5,7 +5,8 @@ private enum Grid {
     static let xs: CGFloat = 4
     static let s: CGFloat = 8
     static let m: CGFloat = 16
-    static let rowHeight: CGFloat = 36
+    static let rowHeight: CGFloat = 44
+    static let section: CGFloat = 12
     static let swatch: CGFloat = 22
 }
 
@@ -15,28 +16,21 @@ struct MenuView: View {
     @State private var editName = ""
     @State private var addingPreset = false
     @FocusState private var typing: Bool
-    @AppStorage("showAppRules") private var showAppRules = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Grid.m) {
-            header
+        VStack(alignment: .leading, spacing: 0) {
+            header.padding(.bottom, Grid.section)
 
-            if !store.hasFullDiskAccess { fullDiskAccessBanner }
-            if let deleted = store.recentlyDeleted { undoBanner(deleted.preset) }
+            if !store.hasFullDiskAccess { fullDiskAccessBanner.padding(.bottom, Grid.section) }
+            if let deleted = store.recentlyDeleted { undoBanner(deleted.preset).padding(.bottom, Grid.section) }
 
-            presetsSection
-
-            Divider()
-
-            adjustSection
-
-            Divider()
-
-            appRulesSection
-
-            Divider()
-
-            footer
+            // Flat sections split by hairlines: nothing boxed inside a box.
+            section { presetsSection }
+            section { sizeSection }
+            section { colorSection }
+            section { switchesSection }
+            section { appRulesSection }
+            section { footer }
         }
         .padding(Grid.m)
         .frame(width: 340)
@@ -116,37 +110,34 @@ struct MenuView: View {
         .padding(.top, Grid.xs)
     }
 
-    // MARK: Adjust
+    // MARK: Size, color, switches
 
-    private var adjustSection: some View {
+    private var sizeSection: some View {
         VStack(alignment: .leading, spacing: Grid.s) {
-            sectionTitle("Adjust")
+            sectionTitle("Size")
             SizeSlider(size: Binding(get: { store.size }, set: { store.setSize($0) }), maxSize: store.maxSize)
-            Toggle("Extra large sizes, up to 30×", isOn: Binding(get: { store.extendedSizes }, set: { store.setExtendedSizes($0) }))
-                .font(.callout)
-            Toggle("Super shake", isOn: Binding(get: { store.superShakeEnabled }, set: { store.setSuperShake($0) }))
-                .font(.callout)
-                .help("Shake the mouse and your pointer briefly grows to 3× its size (up to 30×), at any size.")
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Toggle("macOS shake to find", isOn: Binding(get: { store.shakeToLocate }, set: { store.setShakeToLocate($0) }))
-                        .font(.callout)
-                    Text("Tops out around 4×, so it does little once your pointer is big.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.leading, 20)
-                }
-                .help("macOS's own shake-to-locate. Same switch as in Accessibility → Display.")
-                Spacer()
-                Button { CursorController.openPointerSettings() } label: {
-                    Image(systemName: "gearshape").frame(width: 24, height: 24).contentShape(Rectangle())
-                }
-                .buttonStyle(.borderless)
-                .help("Open the Pointer settings in System Settings")
-                .accessibilityLabel("Open Pointer settings in System Settings")
-            }
+        }
+    }
+
+    private var colorSection: some View {
+        VStack(alignment: .leading, spacing: Grid.s) {
+            sectionTitle("Color")
             ColorRow(title: "Fill", color: store.fill, target: .fill, onPick: store.setFill)
             ColorRow(title: "Outline", color: store.outline, target: .outline, onPick: store.setOutline)
+        }
+    }
+
+    private var switchesSection: some View {
+        VStack(spacing: 0) {
+            SwitchRow(title: "Extra large sizes", detail: "Up to 30× with a drawn pointer",
+                      isOn: Binding(get: { store.extendedSizes }, set: { store.setExtendedSizes($0) }))
+            Divider().padding(.leading, Grid.xs)
+            SwitchRow(title: "Super shake", detail: "Shake to triple the pointer, at any size",
+                      isOn: Binding(get: { store.superShakeEnabled }, set: { store.setSuperShake($0) }))
+            Divider().padding(.leading, Grid.xs)
+            SwitchRow(title: "macOS shake to find", detail: "Built into macOS; tops out around 4×",
+                      isOn: Binding(get: { store.shakeToLocate }, set: { store.setShakeToLocate($0) }))
+                .contextMenu { Button("Open Pointer settings…") { CursorController.openPointerSettings() } }
         }
     }
 
@@ -155,20 +146,7 @@ struct MenuView: View {
     private var appRulesSection: some View {
         VStack(alignment: .leading, spacing: Grid.s) {
             HStack {
-                Button {
-                    withAnimation(.easeOut(duration: 0.15)) { showAppRules.toggle() }
-                } label: {
-                    HStack(spacing: Grid.xs) {
-                        Image(systemName: "chevron.right")
-                            .font(.caption.weight(.bold))
-                            .rotationEffect(.degrees(showAppRules ? 90 : 0))
-                        sectionTitle(store.appRules.isEmpty ? "App rules" : "App rules · \(store.appRules.count)")
-                    }
-                    .frame(minHeight: 24)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(showAppRules ? "Hide app rules" : "Show app rules")
+                sectionTitle("App rules")
                 Spacer()
                 Toggle("App rules on", isOn: Binding(get: { store.appRulesEnabled }, set: { store.setAppRulesEnabled($0) }))
                     .labelsHidden()
@@ -176,22 +154,19 @@ struct MenuView: View {
                     .controlSize(.small)
             }
             .help("Switch to an app's preset automatically. With no rule app open, it goes back to Default.")
-
-            if showAppRules {
-                if store.appRules.isEmpty {
-                    Text("Add apps to a preset with its ＋ button. While that app is in use, your pointer switches to that preset.")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    Picker("Follow", selection: Binding(get: { store.ruleTrigger }, set: { store.setRuleTrigger($0) })) {
-                        ForEach(RuleTrigger.allCases) { Text($0.label).tag($0) }
-                    }
-                    .labelsHidden()
-                    .pickerStyle(.segmented)
-                    .help("Active app: follows the app you're using. Last opened: the most recently launched rule app wins.")
-                    ForEach(store.appRules) { rule in RuleRow(rule: rule) }
+            if store.appRules.isEmpty {
+                Text("Add apps to a preset with its ＋ button. While that app is in use, your pointer switches to that preset.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                Picker("Follow", selection: Binding(get: { store.ruleTrigger }, set: { store.setRuleTrigger($0) })) {
+                    ForEach(RuleTrigger.allCases) { Text($0.label).tag($0) }
                 }
+                .labelsHidden()
+                .pickerStyle(.segmented)
+                .help("Active app: follows the app you're using. Last opened: the most recently launched rule app wins.")
+                ForEach(store.appRules) { rule in RuleRow(rule: rule) }
             }
         }
     }
@@ -270,6 +245,13 @@ struct MenuView: View {
 
     // MARK: Helpers
 
+    private func section<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Divider()
+            content().padding(.vertical, Grid.section)
+        }
+    }
+
     private func sectionTitle(_ title: String) -> some View {
         Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
     }
@@ -306,40 +288,44 @@ private struct PresetRow: View {
     var body: some View {
         HStack(spacing: Grid.s) {
             Button { store.select(preset) } label: {
-                HStack(spacing: Grid.s) {
+                HStack(spacing: Grid.s + 2) {
                     PointerSwatch(fill: preset.fill, outline: preset.outline)
-                    Text(preset.name).fontWeight(isActive ? .semibold : .regular).lineLimit(1)
+                    Text(preset.name).font(.body.weight(isActive ? .semibold : .regular)).lineLimit(1)
                     ForEach(store.ruleApps(for: preset)) { rule in
                         if let icon = PointerStore.icon(forBundleID: rule.bundleID) {
                             Image(nsImage: icon).resizable().frame(width: 16, height: 16).help(rule.appName)
                         }
                     }
                     Spacer(minLength: Grid.xs)
-                    Text(String(format: "%.1f×", preset.size)).foregroundStyle(.secondary).monospacedDigit()
-                    Image(systemName: "checkmark")
-                        .font(.callout.weight(.bold))
-                        .foregroundStyle(Color.accentColor)
-                        .opacity(isActive ? 1 : 0)
                 }
                 .frame(maxWidth: .infinity, minHeight: Grid.rowHeight)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
-            // Edit and delete appear on hover (or while editing), keeping the list calm.
-            HStack(spacing: 0) {
-                iconButton("plus.app", help: "Add an app to “\(preset.name)”") { store.addApp(to: preset) }
-                if !preset.isBuiltIn {
-                    iconButton("pencil", help: "Rename or update") { store.beginEditing(preset) }
-                    iconButton("trash", help: "Delete") { store.delete(preset) }
-                } else {
-                    Color.clear.frame(width: 48, height: 1)
+            // Actions appear on hover; nothing is reserved for them otherwise.
+            if hovering || isEditing {
+                HStack(spacing: 0) {
+                    iconButton("plus.app", help: "Add an app to “\(preset.name)”") { store.addApp(to: preset) }
+                    if !preset.isBuiltIn {
+                        iconButton("pencil", help: "Rename or update") { store.beginEditing(preset) }
+                        iconButton("trash", help: "Delete") { store.delete(preset) }
+                    }
                 }
             }
-            .opacity(hovering || isEditing ? 1 : 0)
+
+            Text(sizeText)
+                .font(.caption.weight(.bold))
+                .monospacedDigit()
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(isActive ? Color.accentColor : Color.primary.opacity(0.07), in: Capsule())
+                .foregroundStyle(isActive ? Color.white : Color.secondary)
         }
-        .padding(.horizontal, Grid.s)
-        .background(rowBackground, in: RoundedRectangle(cornerRadius: 8))
+        .padding(.horizontal, Grid.s + 2)
+        .background(rowBackground, in: RoundedRectangle(cornerRadius: 10))
+        // The selected preset is the one bordered thing in the menu.
+        .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.accentColor, lineWidth: 2).opacity(isActive || isEditing ? 1 : 0))
         .onHover { hovering = $0 }
         .contextMenu {
             Button("Use “\(preset.name)”") { store.select(preset) }
@@ -358,10 +344,13 @@ private struct PresetRow: View {
         .accessibilityAddTraits(isActive ? .isSelected : [])
     }
 
+    private var sizeText: String {
+        preset.size == preset.size.rounded() ? "\(Int(preset.size))×" : String(format: "%.1f×", preset.size)
+    }
+
     private var rowBackground: Color {
-        if isEditing { return Color.accentColor.opacity(0.22) }
-        if isActive { return Color.accentColor.opacity(0.14) }
-        return hovering ? Color.primary.opacity(0.07) : .clear
+        if isActive || isEditing { return Color.accentColor.opacity(0.12) }
+        return hovering ? Color.primary.opacity(0.06) : .clear
     }
 
     private func iconButton(_ symbol: String, help: String, action: @escaping () -> Void) -> some View {
@@ -374,32 +363,63 @@ private struct PresetRow: View {
     }
 }
 
+/// A setting with a one-line explanation and a switch on the right.
+private struct SwitchRow: View {
+    let title: String
+    let detail: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        HStack(spacing: Grid.s) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title)
+                Text(detail).font(.caption).foregroundStyle(.secondary)
+            }
+            Spacer()
+            Toggle(title, isOn: $isOn).labelsHidden().toggleStyle(.switch).controlSize(.small)
+        }
+        .padding(.horizontal, Grid.xs)
+        .frame(minHeight: 40)
+        .contentShape(Rectangle())
+        .onTapGesture { isOn.toggle() }
+    }
+}
+
 private struct RuleRow: View {
     @EnvironmentObject private var store: PointerStore
     let rule: AppRule
     @State private var hovering = false
 
     var body: some View {
+        let preset = store.allPresets.first { $0.id == rule.presetID }
         HStack(spacing: Grid.s) {
-            if let icon = PointerStore.icon(forBundleID: rule.bundleID) {
-                Image(nsImage: icon).resizable().frame(width: 20, height: 20)
+            Group {
+                if let icon = PointerStore.icon(forBundleID: rule.bundleID) {
+                    Image(nsImage: icon).resizable()
+                } else {
+                    Color.clear
+                }
             }
+            .frame(width: 20, height: 20)
             Text(rule.appName).lineLimit(1)
-            Spacer()
-            Text("→ \(store.allPresets.first { $0.id == rule.presetID }?.name ?? "Default")")
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            Spacer(minLength: Grid.xs)
+            Image(systemName: "arrow.right").font(.caption).foregroundStyle(.tertiary)
+            HStack(spacing: 6) {
+                if let preset { PointerSwatch(fill: preset.fill, outline: preset.outline).scaleEffect(0.7).frame(width: 16, height: 18) }
+                Text(preset?.name ?? "Default").fontWeight(.semibold).lineLimit(1)
+            }
+            .frame(width: 110, alignment: .leading)
             Button { store.removeAppRule(rule) } label: {
-                Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary).frame(width: 24, height: 24).contentShape(Rectangle())
+                Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary).frame(width: 20, height: 20).contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
             .help("Take \(rule.appName) out of its preset")
             .accessibilityLabel("Remove rule for \(rule.appName)")
             .opacity(hovering ? 1 : 0)
         }
-        .frame(minHeight: Grid.rowHeight)
-        .padding(.horizontal, Grid.s)
-        .background(store.highlightedRuleID == rule.id ? Color.accentColor.opacity(0.2) : hovering ? Color.primary.opacity(0.07) : .clear,
+        .frame(minHeight: 36)
+        .padding(.horizontal, Grid.xs + 2)
+        .background(store.highlightedRuleID == rule.id ? Color.accentColor.opacity(0.18) : hovering ? Color.primary.opacity(0.06) : .clear,
                     in: RoundedRectangle(cornerRadius: 8))
         .opacity(store.appRulesEnabled ? 1 : 0.5)
         .onHover { hovering = $0 }
@@ -505,12 +525,12 @@ private struct ColorRow: View {
     private static let swatches: [(name: String, color: RGBA)] = [
         ("Black", .black), ("White", .white), ("Red", .red), ("Yellow", .yellow),
         ("Green", RGBA(red: 0.1, green: 0.8, blue: 0.2)), ("Blue", RGBA(red: 0, green: 0.45, blue: 1)),
-        ("Purple", RGBA(red: 0.6, green: 0.2, blue: 1)), ("Pink", RGBA(red: 1, green: 0.4, blue: 0.75)),
+        ("Pink", RGBA(red: 1, green: 0.4, blue: 0.75)),
     ]
 
     var body: some View {
         HStack(spacing: 6) {
-            Text(title).frame(width: 56, alignment: .leading)
+            Text(title).frame(width: 58, alignment: .leading)
             ForEach(Self.swatches, id: \.name) { swatch in
                 let selected = swatch.color.isClose(to: color)
                 Button { onPick(swatch.color) } label: {

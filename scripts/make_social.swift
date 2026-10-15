@@ -65,8 +65,8 @@ ctx.restoreGState()
 srgb(1, 1, 1, 0.12).setStroke(); clip.lineWidth = 1.5; clip.stroke()
 
 // Big pointer in the "Recording" preset's colors, tapping its row
-let rowY = menuRect.maxY - menuH * (290.0 / 1662.0)
-pointer(tip: CGPoint(x: menuRect.minX + menuW * 0.72, y: rowY - 4), height: 170, fill: srgb(0, 0.45, 1), outline: .white)
+let rowY = menuRect.maxY - menuH * (333.0 / 1886.0)
+pointer(tip: CGPoint(x: menuRect.minX + menuW * 0.62, y: rowY - 4), height: 170, fill: srgb(0, 0.45, 1), outline: .white)
 
 NSGraphicsContext.restoreGraphicsState()
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "docs/social-preview.png"))

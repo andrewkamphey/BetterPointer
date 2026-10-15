@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menu Variants</title>
+<style>
+  :root {
+    --menu-bg: #ececef; --card: #ffffff; --line: rgba(0,0,0,0.08); --text: #1d1d1f; --muted: #6e6e73; --faint: #a1a1a6;
+    --accent: #0a7aff; --accent-soft: rgba(10,122,255,0.12); --pink: #ff5fb0; --green: #34c759; --purple: #a259ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 32px; background: #2a2b33; color: #fff; font: 13px/1.35 -apple-system, system-ui, sans-serif; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  .intro { color: #b9bccb; margin: 0 0 28px; max-width: 900px; font-size: 14px; }
+  .row { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+  .col h2 { font-size: 17px; margin: 0 0 4px; }
+  .col p.note { color: #b9bccb; margin: 0 0 12px; max-width: 340px; font-size: 13px; }
+
+  /* menu shell */
+  .menu { width: 340px; background: var(--menu-bg); color: var(--text); border-radius: 14px; padding: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; gap: 12px; }
+  .hdr { display: flex; justify-content: space-between; align-items: baseline; }
+  .hdr b { font-size: 15px; }
+  .hdr .x { font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .status { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .card { background: var(--card); border-radius: 12px; padding: 10px; border: 1px solid var(--line); }
+  .cap { font-size: 11.5px; font-weight: 700; color: var(--muted); margin: 2px 4px 6px; letter-spacing: 0.01em; }
+
+  /* pointer glyph */
+  .ptr { width: 16px; height: 24px; flex: none; }
+  .ptr.l { width: 26px; height: 38px; }
+  .ptr.xl { width: 34px; height: 50px; }
+
+  /* app icons */
+  .app { width: 16px; height: 16px; border-radius: 4px; display: inline-grid; place-items: center; font-size: 9px; font-weight: 900; color: #fff; flex: none; }
+  .app.claude { background: #d97757; } .app.chrome { background: conic-gradient(#ea4335 0 33%, #fbbc05 0 66%, #34a853 0); }
+  .app.l { width: 20px; height: 20px; border-radius: 5px; font-size: 11px; }
+
+  /* list rows */
+  .preset { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 10px; border-radius: 10px; border: 2px solid transparent; }
+  .preset .name { font-size: 14px; flex: 1; display: flex; align-items: center; gap: 6px; }
+  .preset .size { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 13px; }
+  .preset.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .preset.sel .name { font-weight: 700; }
+  .pill { font-variant-numeric: tabular-nums; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,0.06); color: var(--muted); }
+  .preset.sel .pill { background: var(--accent); color: #fff; }
+  .add { color: var(--accent); font-weight: 600; font-size: 13.5px; padding: 8px 10px; }
+
+  /* slider */
+  .slider { position: relative; height: 22px; margin: 4px 6px 0; }
+  .track { position: absolute; left: 0; right: 0; top: 9px; height: 4px; border-radius: 4px; background: rgba(0,0,0,0.12); }
+  .fill { position: absolute; left: 0; top: 9px; height: 4px; border-radius: 4px; background: var(--accent); }
+  .knob { position: absolute; top: 0; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .ticks { display: flex; justify-content: space-between; margin: 4px 0 0; color: var(--muted); font-size: 11px; padding: 0 2px; }
+  .ticks b { color: var(--accent); }
+
+  /* swatches */
+  .sw-row { display: flex; align-items: center; gap: 6px; }
+  .sw-row .lbl { width: 54px; font-size: 13px; }
+  .sw { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.18); flex: none; position: relative; }
+  .sw.on { box-shadow: 0 0 0 2px var(--menu-bg), 0 0 0 4px var(--accent); }
+  .sw.on::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; font-weight: 900; color: #fff; }
+  .sw.on.light::after { color: #000; }
+  .sw.custom { border-radius: 6px; width: 26px; background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red); }
+
+  /* toggles */
+  .tog { display: flex; align-items: center; justify-content: space-between; padding: 8px 4px; gap: 10px; }
+  .tog + .tog { border-top: 1px solid var(--line); }
+  .tog .t { font-size: 13.5px; }
+  .tog small { display: block; color: var(--muted); font-size: 11.5px; }
+  .switch { width: 32px; height: 19px; border-radius: 999px; background: rgba(0,0,0,0.15); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 15px; height: 15px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+  .switch.on { background: var(--green); } .switch.on::after { left: 15px; }
+
+  /* app rules */
+  .rule { display: grid; grid-template-columns: 22px 1fr 16px 92px; align-items: center; gap: 8px; height: 38px; padding: 0 6px; }
+  .rule .arrow { color: var(--faint); }
+  .rule .to { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+  .seg { display: flex; background: rgba(0,0,0,0.07); border-radius: 8px; padding: 2px; margin-bottom: 6px; }
+  .seg span { flex: 1; text-align: center; padding: 4px; border-radius: 6px; font-weight: 600; color: var(--muted); }
+  .seg span.on { background: #fff; color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+  .foot { display: flex; justify-content: space-between; align-items: center; padding: 0 2px; }
+  .btn { background: rgba(0,0,0,0.07); border-radius: 8px; padding: 6px 14px; font-weight: 600; }
+
+  /* V2 tiles */
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .tile { position: relative; border-radius: 12px; border: 2px solid var(--line); background: #fff; padding: 10px 6px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .tile .nm { font-size: 12.5px; font-weight: 600; }
+  .tile .sz { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tile.sel { border-color: var(--accent); background: #eef5ff; }
+  .tile .apps { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; }
+  .tile.add-tile { border-style: dashed; color: var(--accent); justify-content: center; font-weight: 700; font-size: 22px; }
+
+  /* V3 tabs */
+  .tabs { display: flex; background: rgba(0,0,0,0.07); border-radius: 10px; padding: 3px; }
+  .tabs span { flex: 1; text-align: center; padding: 7px 4px; border-radius: 8px; font-weight: 700; color: var(--muted); font-size: 13px; }
+  .tabs span.on { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+
+  /* V4 cute */
+  .cute { background: #f6f3ff; border-radius: 22px; padding: 14px; }
+  .cute .hero { border-radius: 18px; padding: 14px; color: #fff; background: linear-gradient(135deg, #ff6aa2, #a259ff 55%, #3d7bff); display: flex; align-items: center; gap: 12px; }
+  .cute .hero b { font-size: 16px; display: block; }
+  .cute .hero span { opacity: 0.9; font-size: 12.5px; }
+  .cute .card { border-radius: 18px; border: 0; box-shadow: 0 2px 10px rgba(80,40,160,0.08); }
+  .cute .cap { font-size: 13px; color: #4b3b78; }
+  .cute .preset { height: 48px; border-radius: 14px; }
+  .cute .preset.sel { border-color: var(--purple); background: rgba(162,89,255,0.12); box-shadow: 0 0 0 4px rgba(162,89,255,0.12); }
+  .cute .preset.sel .pill { background: var(--purple); }
+  .cute .sw { width: 26px; height: 26px; }
+  .cute .sw.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--purple); }
+  .cute .switch.on { background: var(--purple); }
+  .cute .fill { background: linear-gradient(90deg, #ff6aa2, #a259ff); }
+  .cute .ticks b { color: var(--purple); }
+  .cute .btn { border-radius: 999px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <path id="a" d="M4 4 V90 L24.4 70.7 L38.4 104 L52.4 97.6 L38.4 65 L65.3 65 Z" transform="scale(0.93)" stroke-width="6" stroke-linejoin="round"/>
+</defs></svg>
+
+<h1>Menu design sprint</h1>
+<p class="intro">Same content in all four: Default, Big Green (Chrome), Big Pink (Claude, selected), size 4×, pink fill with white outline, 2 app rules. Every variant fixes the overflowing color row, the cut-off hint, the dead space in preset rows and the misaligned rule arrows, and uses a bordered selection.</p>
+
+<div class="row">
+
+<!-- V1 -->
+<div class="col">
+  <h2>A · Grouped cards</h2>
+  <p class="note">The current menu, tidied: System Settings-style white cards, 44pt rows, a bordered + tinted selection, toggles as switches on the right.</p>
+  <div class="menu">
+    <div><div class="hdr"><b>Where's My Mouse?</b><span class="x">4.0×</span></div><div class="status">Big Pink, for Claude</div></div>
+    <div class="card">
+      <div class="cap">Presets</div>
+      <div class="preset"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#000" stroke="#fff"/></svg><span class="name">Default</span><span class="pill">1×</span></div>
+      <div class="preset"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#34c759" stroke="#000"/></svg><span class="name">Big Green <span class="app chrome"></span></span><span class="pill">4×</span></div>
+      <div class="preset sel"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#ff5fb0" stroke="#fff"/></svg><span class="name">Big Pink <span class="app claude">✳</span></span><span class="pill">4×</span></div>
+      <div class="add">＋ New preset</div>
+    </div>
+    <div class="card">
+      <div class="cap">Size</div>
+      <div class="slider"><div class="track"></div><div class="fill" style="width:33%"></div><div class="knob" style="left:33%"></div></div>
+      <div class="ticks"><span>1×</span><span>2×</span><span>3×</span><b>4×</b><span>5×</span><span>6×</span><span>7×</span><span>8×</span><span>9×</span><span>10×</span></div>
+      <div class="cap" style="margin-top:12px">Color</div>
+      <div class="sw-row"><span class="lbl">Fill</span><span class="sw" style="background:#000"></span><span class="sw" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw on" style="background:#ff5fb0"></span><span class="sw custom"></span></div>
+      <div class="sw-row" style="margin-top:8px"><span class="lbl">Outline</span><span class="sw" style="background:#000"></span><span class="sw on light" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw" style="background:#ff5fb0"></span><span class="sw custom"></span></div>
+    </div>
+    <div class="card">
+      <div class="tog"><span class="t">Extra large sizes<small>Up to 30× with a drawn pointer</small></span><span class="switch"></span></div>
+      <div class="tog"><span class="t">Super shake<small>Shake to triple the pointer, any size</small></span><span class="switch on"></span></div>
+      <div class="tog"><span class="t">macOS shake to find<small>Tops out around 4×</small></span><span class="switch on"></span></div>
+    </div>
+    <div class="card">
+      <div class="cap" style="display:flex;justify-content:space-between">App rules <span class="switch on" style="transform:scale(0.85)"></span></div>
+      <div class="seg"><span class="on">Active app</span><span>Last opened</span></div>
+      <div class="rule"><span class="app l claude">✳</span><span>Claude</span><span class="arrow">→</span><span class="to"><svg class="ptr" viewBox="0 0 62 100" style="width:11px;height:16px"><use href="#a" fill="#ff5fb0" stroke="#fff"/></svg>Big Pink</span></div>
+      <div class="rule"><span class="app l chrome"></span><span>Chrome</span><span class="arrow">→</span><span class="to"><svg class="ptr" viewBox="0 0 62 100" style="width:11px;height:16px"><use href="#a" fill="#34c759" stroke="#000"/></svg>Big Green</span></div>
+    </div>
+    <div class="foot"><span>☑ Launch at login</span><span class="btn">Quit</span></div>
+  </div>
+</div>
+
+<!-- V2 -->
+<div class="col">
+  <h2>B · Preset tiles</h2>
+  <p class="note">Presets become chunky tiles with big pointer previews, so you pick by look. Selected tile gets a thick blue border; app icons sit in the tile's corner.</p>
+  <div class="menu">
+    <div><div class="hdr"><b>Where's My Mouse?</b><span class="x">4.0×</span></div><div class="status">Big Pink, for Claude</div></div>
+    <div class="tiles">
+      <div class="tile"><svg class="ptr l" viewBox="0 0 62 100"><use href="#a" fill="#000" stroke="#fff"/></svg><span class="nm">Default</span><span class="sz">1×</span></div>
+      <div class="tile"><span class="apps"><span class="app chrome"></span></span><svg class="ptr l" viewBox="0 0 62 100"><use href="#a" fill="#34c759" stroke="#000"/></svg><span class="nm">Big Green</span><span class="sz">4×</span></div>
+      <div class="tile sel"><span class="apps"><span class="app claude">✳</span></span><svg class="ptr l" viewBox="0 0 62 100"><use href="#a" fill="#ff5fb0" stroke="#fff"/></svg><span class="nm">Big Pink</span><span class="sz">4×</span></div>
+      <div class="tile add-tile">＋</div>
+    </div>
+    <div class="card">
+      <div class="cap">Size · 4×</div>
+      <div class="slider"><div class="track"></div><div class="fill" style="width:33%"></div><div class="knob" style="left:33%"></div></div>
+      <div class="ticks"><span>1×</span><span>2×</span><span>3×</span><b>4×</b><span>5×</span><span>6×</span><span>7×</span><span>8×</span><span>9×</span><span>10×</span></div>
+      <div class="sw-row" style="margin-top:12px"><span class="lbl">Fill</span><span class="sw" style="background:#000"></span><span class="sw" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw on" style="background:#ff5fb0"></span><span class="sw custom"></span></div>
+      <div class="sw-row" style="margin-top:8px"><span class="lbl">Outline</span><span class="sw" style="background:#000"></span><span class="sw on light" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw" style="background:#ff5fb0"></span><span class="sw custom"></span></div>
+    </div>
+    <div class="card">
+      <div class="tog"><span class="t">Super shake</span><span class="switch on"></span></div>
+      <div class="tog"><span class="t">Extra large sizes (30×)</span><span class="switch"></span></div>
+      <div class="tog"><span class="t">App rules · 2 <small>Claude → Big Pink · Chrome → Big Green</small></span><span class="switch on"></span></div>
+    </div>
+    <div class="foot"><span>☑ Launch at login</span><span class="btn">Quit</span></div>
+  </div>
+</div>
+
+<!-- V3 -->
+<div class="col">
+  <h2>C · Tabs</h2>
+  <p class="note">Three tabs keep the menu short: <b>Presets</b> (shown), <b>Look</b> (size and colors) and <b>Apps</b> (rules). Half the height of today's menu.</p>
+  <div class="menu">
+    <div><div class="hdr"><b>Where's My Mouse?</b><span class="x">4.0×</span></div><div class="status">Big Pink, for Claude</div></div>
+    <div class="tabs"><span class="on">Presets</span><span>Look</span><span>Apps</span></div>
+    <div class="card">
+      <div class="preset"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#000" stroke="#fff"/></svg><span class="name">Default</span><span class="pill">1×</span></div>
+      <div class="preset"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#34c759" stroke="#000"/></svg><span class="name">Big Green <span class="app chrome"></span></span><span class="pill">4×</span></div>
+      <div class="preset sel"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#ff5fb0" stroke="#fff"/></svg><span class="name">Big Pink <span class="app claude">✳</span></span><span class="pill">4×</span></div>
+      <div class="add">＋ New preset</div>
+    </div>
+    <div class="card">
+      <div class="tog"><span class="t">Super shake</span><span class="switch on"></span></div>
+    </div>
+    <div class="foot"><span>☑ Launch at login</span><span class="btn">Quit</span></div>
+  </div>
+  <p class="note" style="margin-top:14px">Look tab:</p>
+  <div class="menu">
+    <div class="tabs"><span>Presets</span><span class="on">Look</span><span>Apps</span></div>
+    <div class="card">
+      <div class="cap">Size · 4×</div>
+      <div class="slider"><div class="track"></div><div class="fill" style="width:33%"></div><div class="knob" style="left:33%"></div></div>
+      <div class="ticks"><span>1×</span><span>2×</span><span>3×</span><b>4×</b><span>5×</span><span>6×</span><span>7×</span><span>8×</span><span>9×</span><span>10×</span></div>
+      <div class="sw-row" style="margin-top:12px"><span class="lbl">Fill</span><span class="sw" style="background:#000"></span><span class="sw" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw on" style="background:#ff5fb0"></span><span class="sw custom"></span></div>
+      <div class="sw-row" style="margin-top:8px"><span class="lbl">Outline</span><span class="sw" style="background:#000"></span><span class="sw on light" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw" style="background:#ff5fb0"></span><span class="sw custom"></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- V4 -->
+<div class="col">
+  <h2>D · Cute</h2>
+  <p class="note">Same structure as A, but playful: a gradient header with a big pointer, 18pt rounded cards, purple selection with a soft glow, chunkier swatches and pill buttons.</p>
+  <div class="menu cute">
+    <div class="hero"><svg class="ptr xl" viewBox="0 0 62 100"><use href="#a" fill="#fff" stroke="#3d2a7a"/></svg><div><b>Where's My Mouse?</b><span>Big Pink, for Claude · 4×</span></div></div>
+    <div class="card">
+      <div class="cap">🎯 Presets</div>
+      <div class="preset"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#000" stroke="#fff"/></svg><span class="name">Default</span><span class="pill">1×</span></div>
+      <div class="preset"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#34c759" stroke="#000"/></svg><span class="name">Big Green <span class="app chrome"></span></span><span class="pill">4×</span></div>
+      <div class="preset sel"><svg class="ptr" viewBox="0 0 62 100"><use href="#a" fill="#ff5fb0" stroke="#fff"/></svg><span class="name">Big Pink <span class="app claude">✳</span></span><span class="pill">4×</span></div>
+      <div class="add" style="color:#a259ff">＋ New preset</div>
+    </div>
+    <div class="card">
+      <div class="cap">🎨 Look</div>
+      <div class="slider"><div class="track"></div><div class="fill" style="width:33%"></div><div class="knob" style="left:33%"></div></div>
+      <div class="ticks"><span>1×</span><span>2×</span><span>3×</span><b>4×</b><span>5×</span><span>6×</span><span>7×</span><span>8×</span><span>9×</span><span>10×</span></div>
+      <div class="sw-row" style="margin-top:12px;gap:5px"><span class="lbl">Fill</span><span class="sw" style="background:#000"></span><span class="sw" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw on" style="background:#ff5fb0"></span></div>
+      <div class="sw-row" style="margin-top:8px;gap:5px"><span class="lbl">Outline</span><span class="sw" style="background:#000"></span><span class="sw on light" style="background:#fff"></span><span class="sw" style="background:#ff3b30"></span><span class="sw" style="background:#ffd60a"></span><span class="sw" style="background:#34c759"></span><span class="sw" style="background:#0a84ff"></span><span class="sw" style="background:#ff5fb0"></span></div>
+    </div>
+    <div class="card">
+      <div class="tog"><span class="t">🫨 Super shake</span><span class="switch on"></span></div>
+      <div class="tog"><span class="t">🧩 App rules · 2</span><span class="switch on"></span></div>
+    </div>
+    <div class="foot"><span>☑ Launch at login</span><span class="btn">Quit</span></div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
