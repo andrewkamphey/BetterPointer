@@ -179,6 +179,18 @@
     .cycle4 > :nth-child(2), .cycle2 > :nth-child(1) { opacity: 1; }
   }
 
+  /* scroll-grown pointer: our own arrow replaces the cursor and grows 1x -> 10x down the page */
+  html.grow-ptr, html.grow-ptr * { cursor: none !important; }
+  #grow-ptr { position: fixed; left: 0; top: 0; z-index: 2147483647; pointer-events: none; width: 13px; height: auto;
+    transform-origin: 0 0; will-change: transform; opacity: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); }
+  html.grow-ptr #grow-ptr.on { opacity: 1; }
+  #grow-badge { position: fixed; right: 16px; bottom: 16px; z-index: 2147483646; display: none; align-items: center; gap: 10px;
+    background: rgba(13,14,22,0.88); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 7px 8px 7px 16px;
+    font-size: 14px; backdrop-filter: blur(8px); }
+  #grow-badge b { font-variant-numeric: tabular-nums; }
+  #grow-badge button { border: 0; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 700; background: var(--panel-2); color: var(--text); }
+  html.grow-ok #grow-badge { display: flex; }
+
   /* Google Sheets scene for Yours vs Ours */
   .gs { position: absolute; inset: 0; background: #fff; color: #202124; font-size: 1.25cqw; }
   .gs-top { position: absolute; left: 0; right: 0; top: 0; height: 9%; display: flex; align-items: center; gap: 1.2%; padding: 0 1.6%; background: #f9fbfd; }
@@ -588,6 +600,58 @@
       d.querySelectorAll('.switch button').forEach(function (b) { b.addEventListener('click', function () { auto = false; set(b.dataset.v === 'ours'); }); });
       setInterval(function () { if (auto) set(!d.classList.contains('show-ours')); }, 2500);
     });
+  })();
+</script>
+<svg id="grow-ptr" viewBox="0 0 62 100" aria-hidden="true">
+  <defs>
+    <linearGradient id="grow-rainbow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff3b30"/><stop offset="0.2" stop-color="#ff9500"/><stop offset="0.4" stop-color="#ffd60a"/>
+      <stop offset="0.6" stop-color="#34c759"/><stop offset="0.8" stop-color="#0a84ff"/><stop offset="1" stop-color="#af52de"/>
+    </linearGradient>
+  </defs>
+  <use href="#arrow" fill="url(#grow-rainbow)" stroke="#fff"/>
+</svg>
+<div id="grow-badge" role="status"><span>Your pointer: <b id="grow-size">1.0×</b></span><button type="button" id="grow-toggle">Use my normal pointer</button></div>
+<script>
+  // Our own arrow follows the mouse and grows from 1x at the top of the page to 10x at the bottom.
+  // Only with a real mouse/trackpad, never with reduced motion; the badge turns it off (remembered).
+  (function () {
+    var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!fine || calm) return;
+    var root = document.documentElement, ptr = document.getElementById('grow-ptr');
+    var sizeOut = document.getElementById('grow-size'), toggle = document.getElementById('grow-toggle');
+    var x = -100, y = -100, queued = false;
+    function stored() { try { return localStorage.getItem('wmm-grow') !== 'off'; } catch (e) { return true; } }
+    function store(on) { try { localStorage.setItem('wmm-grow', on ? 'on' : 'off'); } catch (e) {} }
+    function scale() {
+      var max = root.scrollHeight - window.innerHeight;
+      var t = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      return 1 + 9 * t;
+    }
+    function draw() {
+      queued = false;
+      var s = scale();
+      // the arrow's tip sits at (4, 4) in its 62x100 box; keep the tip on the hotspot
+      var tip = 4 * 0.93 * (13 / 62) * s;
+      ptr.style.transform = 'translate(' + (x - tip) + 'px,' + (y - tip) + 'px) scale(' + s + ')';
+      sizeOut.textContent = s.toFixed(1) + '×';
+    }
+    function queue() { if (!queued) { queued = true; requestAnimationFrame(draw); } }
+    function set(on) {
+      root.classList.toggle('grow-ptr', on);
+      toggle.textContent = on ? 'Use my normal pointer' : 'Make it grow';
+      store(on);
+    }
+    root.classList.add('grow-ok');
+    set(stored());
+    document.addEventListener('pointermove', function (e) { x = e.clientX; y = e.clientY; ptr.classList.add('on'); queue(); }, { passive: true });
+    document.addEventListener('pointerleave', function () { ptr.classList.remove('on'); });
+    document.documentElement.addEventListener('mouseleave', function () { ptr.classList.remove('on'); });
+    window.addEventListener('scroll', queue, { passive: true });
+    window.addEventListener('resize', queue);
+    toggle.addEventListener('click', function () { set(!root.classList.contains('grow-ptr')); });
+    draw();
   })();
 </script>
 </body>
