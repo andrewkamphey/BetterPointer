@@ -23,7 +23,6 @@ struct MenuView: View {
 
             if !store.hasFullDiskAccess { fullDiskAccessBanner }
             if let deleted = store.recentlyDeleted { undoBanner(deleted.preset) }
-            if let pin = store.pinSuggestion { pinBanner(pin.rule, pin.preset) }
 
             presetsSection
 
@@ -171,7 +170,7 @@ struct MenuView: View {
 
             if showAppRules {
                 if store.appRules.isEmpty {
-                    Text("Pick an app and a preset; while that app is open, your pointer switches to it.")
+                    Text("Add apps to a preset with its ＋ button. While that app is in use, your pointer switches to that preset.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -184,11 +183,6 @@ struct MenuView: View {
                     .help("Active app: follows the app you're using. Last opened: the most recently launched rule app wins.")
                     ForEach(store.appRules) { rule in RuleRow(rule: rule) }
                 }
-                Button { store.addAppRule() } label: {
-                    Label("Add app…", systemImage: "plus").frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
-                }
-                .buttonStyle(.borderless)
-                .padding(.horizontal, Grid.s)
             }
         }
     }
@@ -224,21 +218,6 @@ struct MenuView: View {
         }
         .padding(Grid.s + Grid.xs)
         .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-    }
-
-    /// Offered when you pick a preset while an app rule is in control; rules only change on purpose.
-    private func pinBanner(_ rule: AppRule, _ preset: Preset) -> some View {
-        let current = store.allPresets.first { $0.id == rule.presetID }?.name ?? "Default"
-        return HStack(spacing: Grid.s) {
-            Text("\(rule.appName) uses \(current).").font(.callout).foregroundStyle(.secondary).lineLimit(1)
-            Spacer(minLength: Grid.xs)
-            Button("Pin \(preset.name) to \(rule.appName)") { store.acceptPinSuggestion() }
-                .controlSize(.large)
-                .lineLimit(1)
-        }
-        .padding(.horizontal, Grid.s + Grid.xs)
-        .padding(.vertical, Grid.s)
-        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private func undoBanner(_ preset: Preset) -> some View {
@@ -339,21 +318,26 @@ private struct PresetRow: View {
             .buttonStyle(.plain)
 
             // Edit and delete appear on hover (or while editing), keeping the list calm.
-            if !preset.isBuiltIn {
-                HStack(spacing: 0) {
+            HStack(spacing: 0) {
+                iconButton("plus.app", help: "Add an app to “\(preset.name)”") { store.addApp(to: preset) }
+                if !preset.isBuiltIn {
                     iconButton("pencil", help: "Rename or update") { store.beginEditing(preset) }
                     iconButton("trash", help: "Delete") { store.delete(preset) }
+                } else {
+                    Color.clear.frame(width: 48, height: 1)
                 }
-                .opacity(hovering || isEditing ? 1 : 0)
-            } else {
-                Color.clear.frame(width: 48, height: 1)
             }
+            .opacity(hovering || isEditing ? 1 : 0)
         }
         .padding(.horizontal, Grid.s)
         .background(rowBackground, in: RoundedRectangle(cornerRadius: 8))
         .onHover { hovering = $0 }
         .contextMenu {
             Button("Use “\(preset.name)”") { store.select(preset) }
+            Button("Add an app…") { store.addApp(to: preset) }
+            ForEach(store.ruleApps(for: preset)) { rule in
+                Button("Remove \(rule.appName) from “\(preset.name)”") { store.removeAppRule(rule) }
+            }
             if !preset.isBuiltIn {
                 Button("Rename or update") { store.beginEditing(preset) }
                 Button("Delete", role: .destructive) { store.delete(preset) }
@@ -393,16 +377,14 @@ private struct RuleRow: View {
             }
             Text(rule.appName).lineLimit(1)
             Spacer()
-            Picker("Preset for \(rule.appName)", selection: Binding(get: { rule.presetID }, set: { store.setPreset($0, for: rule) })) {
-                ForEach(store.allPresets) { preset in Text(preset.name).tag(preset.id) }
-            }
-            .labelsHidden()
-            .frame(width: 150)
+            Text("→ \(store.allPresets.first { $0.id == rule.presetID }?.name ?? "Default")")
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
             Button { store.removeAppRule(rule) } label: {
                 Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary).frame(width: 24, height: 24).contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
-            .help("Remove this rule")
+            .help("Take \(rule.appName) out of its preset")
             .accessibilityLabel("Remove rule for \(rule.appName)")
             .opacity(hovering ? 1 : 0)
         }

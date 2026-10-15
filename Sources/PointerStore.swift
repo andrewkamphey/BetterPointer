@@ -169,22 +169,6 @@ final class PointerStore: ObservableObject {
         apply(preset)
     }
 
-    /// When a ruled app is in control but the pointer is on a different preset, the rule
-    /// and that preset, so the menu can offer to pin it. Picking a preset never changes rules by itself.
-    var pinSuggestion: (rule: AppRule, preset: Preset)? {
-        guard appRulesEnabled, let bundleID = activeRuleBundleID,
-              let rule = appRules.first(where: { $0.bundleID == bundleID }),
-              let preset = allPresets.first(where: { $0.id == activePresetID }),
-              rule.presetID != preset.id else { return nil }
-        return (rule, preset)
-    }
-
-    func acceptPinSuggestion() {
-        guard let suggestion = pinSuggestion else { return }
-        setPreset(suggestion.preset.id, for: suggestion.rule)
-        if let rule = appRules.first(where: { $0.id == suggestion.rule.id }) { flash(rule) }
-    }
-
     /// The user's own preset picked last, when the pointer has since been changed away from it.
     var modifiedSelectedPreset: Preset? {
         guard let preset = customPresets.first(where: { $0.id == selectedPresetID }),
@@ -253,11 +237,12 @@ final class PointerStore: ObservableObject {
         undoExpiry?.cancel()
     }
 
-    /// One line for the top of the menu: which app (if any) chose the pointer, and which preset.
+    /// One line for the top of the menu: the preset in use, and the app that chose it (if one did).
     var statusText: String {
         let presetName = allPresets.first { $0.id == activePresetID }?.name ?? "Custom"
-        if appRulesEnabled, let id = activeRuleBundleID, let rule = appRules.first(where: { $0.bundleID == id }) {
-            return "\(rule.appName) → \(presetName)"
+        if appRulesEnabled, let id = activeRuleBundleID,
+           let rule = appRules.first(where: { $0.bundleID == id }), rule.presetID == activePresetID {
+            return "\(presetName), for \(rule.appName)"
         }
         return presetName
     }
@@ -300,23 +285,37 @@ final class PointerStore: ObservableObject {
         if on { evaluateAppRules(force: true) } else { activeRuleBundleID = nil }
     }
 
-    /// Asks for an app in /Applications and adds a rule for it.
-    func addAppRule() {
+    /// Asks for an app in /Applications and adds it to `preset`. An app belongs to one preset:
+    /// if it's already in another, confirm before moving it.
+    func addApp(to preset: Preset) {
         let panel = NSOpenPanel()
-        panel.title = "Choose an app"
-        panel.prompt = "Add Rule"
+        panel.title = "Add an app to “\(preset.name)”"
+        panel.message = "While this app is in use, your pointer switches to “\(preset.name)”."
+        panel.prompt = "Add"
         panel.allowedContentTypes = [.application]
         panel.directoryURL = URL(fileURLWithPath: "/Applications")
         NSApp.activate(ignoringOtherApps: true)
         guard panel.runModal() == .OK, let url = panel.url,
               let bundleID = Bundle(url: url)?.bundleIdentifier else { return }
-        // One rule per app: picking an app that already has one points at that rule instead.
-        if let existing = appRules.first(where: { $0.bundleID == bundleID }) {
-            flash(existing)
-            return
-        }
         let name = FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
-        appRules.append(AppRule(bundleID: bundleID, appName: name, presetID: Self.defaultPresetID))
+
+        if let index = appRules.firstIndex(where: { $0.bundleID == bundleID }) {
+            let current = appRules[index]
+            guard current.presetID != preset.id else { flash(current); return }
+            let from = allPresets.first { $0.id == current.presetID }?.name ?? "another preset"
+            let alert = NSAlert()
+            alert.messageText = "Move \(name) to “\(preset.name)”?"
+            alert.informativeText = "\(name) is in “\(from)”. An app can only be in one preset, so it will leave “\(from)”."
+            alert.addButton(withTitle: "Move")
+            alert.addButton(withTitle: "Cancel")
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            appRules[index].presetID = preset.id
+            flash(appRules[index])
+        } else {
+            let rule = AppRule(bundleID: bundleID, appName: name, presetID: preset.id)
+            appRules.append(rule)
+            flash(rule)
+        }
         saveAppRules()
         evaluateAppRules(force: true)
     }

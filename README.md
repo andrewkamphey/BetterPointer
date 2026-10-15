@@ -19,7 +19,7 @@ A native macOS menu bar app for managing pointer size and color, for when you (o
 - **Size from 1× to 10×**: past System Settings' 4× limit, applied live as you drag. Tick **Extra large sizes** for up to 15×.
 - **Fill and outline colors**: quick swatches, or any color from the color picker.
 - **Presets**: starts with just Default; save the current pointer as your own (e.g. a big blue one for recording), then rename, update, or delete it.
-- **App rules**: pick any app and a preset; while that app is open, the pointer switches to it (e.g. OBS → blue, Loom → orange). The most recently opened app wins; with none open, it's back to Default.
+- **App rules**: add apps to a preset with its ＋ button (e.g. OBS and Loom → a big blue "Recording" preset). While one of those apps is in use, the pointer switches to that preset; an app can only belong to one preset, and moving it asks first. Follow the active app or the last one opened; with none open, it's back to Default.
 - **Launch at login**: and sizes above 4× are re-applied when the app starts.
 
 <img src="docs/menu-dark.png" width="300" alt="The Where's My Mouse? menu">
