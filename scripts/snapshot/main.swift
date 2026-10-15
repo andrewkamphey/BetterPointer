@@ -10,6 +10,9 @@ enum SnapshotMenu {
         let output = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "docs/menu.png"
         let dark = CommandLine.arguments.contains("--dark")
         UserDefaults.standard.set(true, forKey: "showAppRules") // show the rules in screenshots
+        // --xl renders the extra-large slider at 20x (the drawn range)
+        let xl = CommandLine.arguments.contains("--xl")
+        UserDefaults.standard.set(xl, forKey: "extendedSizes")
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
@@ -22,7 +25,9 @@ enum SnapshotMenu {
             AppRule(bundleID: "com.loom.desktop", appName: "Loom", presetID: recording.id),
             AppRule(bundleID: "com.apple.FaceTime", appName: "FaceTime", presetID: presenting.id),
         ]
-        let store = PointerStore(snapshotOf: recording, presets: [recording, presenting, huge], rules: rules)
+        var shown = recording
+        if xl { shown.size = 20 }
+        let store = PointerStore(snapshotOf: shown, presets: [recording, presenting, huge], rules: rules)
         let root = MenuView()
             .environmentObject(store)
             .background(Color(nsColor: .windowBackgroundColor))

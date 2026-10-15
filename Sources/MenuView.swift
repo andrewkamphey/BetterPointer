@@ -427,6 +427,7 @@ private struct SizeSlider: View {
             Slider(value: $size, in: range) { editing in
                 if !editing, let mark = marks.first(where: { abs($0 - size) < 0.12 }), mark != size { size = mark }
             }
+            .tint(isDrawn ? .purple : .accentColor)
             .accessibilityLabel("Pointer size")
             .accessibilityValue(String(format: "%.1f times", size))
             GeometryReader { geo in
@@ -450,7 +451,47 @@ private struct SizeSlider: View {
                 }
             }
             .frame(height: 24)
+
+            if maxSize > drawnFrom {
+                zones
+                if isDrawn {
+                    Label("Drawn pointer: arrow only, may trail slightly.", systemImage: "paintbrush.pointed")
+                        .font(.caption)
+                        .foregroundStyle(.purple)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
+    }
+
+    /// Above 15× the window server won't scale the real pointer, so we draw one.
+    private let drawnFrom = CursorController.overlayMinSize
+    private var isDrawn: Bool { size >= drawnFrom }
+
+    /// Two labeled bands under the ticks: the real macOS pointer, then the drawn one.
+    private var zones: some View {
+        GeometryReader { geo in
+            let track = geo.size.width - knobInset * 2
+            let split = knobInset + track * (drawnFrom - 0.5 - 1) / (maxSize - 1)
+            HStack(spacing: 2) {
+                zone("System pointer · 1–15×", color: .accentColor, active: !isDrawn)
+                    .frame(width: split)
+                zone("Drawn · 16–30×", color: .purple, active: isDrawn)
+            }
+        }
+        .frame(height: 20)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("1 to 15 times uses the system pointer; 16 to 30 times uses a drawn pointer")
+    }
+
+    private func zone(_ title: String, color: Color, active: Bool) -> some View {
+        Text(title)
+            .font(.caption2.weight(.semibold))
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .foregroundStyle(active ? .white : color)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(color.opacity(active ? 0.85 : 0.15), in: RoundedRectangle(cornerRadius: 5))
     }
 }
 
