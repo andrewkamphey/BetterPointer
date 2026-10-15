@@ -9,6 +9,7 @@ enum SnapshotMenu {
     static func main() {
         let output = CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "docs/menu.png"
         let dark = CommandLine.arguments.contains("--dark")
+        UserDefaults.standard.set(true, forKey: "showAppRules") // show the rules in screenshots
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 

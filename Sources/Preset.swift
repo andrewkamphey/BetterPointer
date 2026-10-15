@@ -29,6 +29,9 @@ struct RGBA: Codable, Hashable {
     var cgColor: CGColor { nsColor.cgColor }
     var color: Color { Color(nsColor: nsColor) }
 
+    /// True for colors where white text or marks read better than black.
+    var isDark: Bool { 0.299 * red + 0.587 * green + 0.114 * blue < 0.55 }
+
     func isClose(to other: RGBA) -> Bool {
         abs(red - other.red) < 0.01 && abs(green - other.green) < 0.01
             && abs(blue - other.blue) < 0.01 && abs(alpha - other.alpha) < 0.01

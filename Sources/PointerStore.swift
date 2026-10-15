@@ -28,7 +28,7 @@ final class PointerStore: ObservableObject {
     private static let appRulesEnabledKey = "appRulesEnabled"
     private static let ruleTriggerKey = "ruleTrigger"
     /// The app whose rule is currently applied, if any.
-    private var activeRuleBundleID: String?
+    @Published private(set) var activeRuleBundleID: String?
     private var workspaceObservers: [NSObjectProtocol] = []
     private var persistSizeWork: DispatchWorkItem?
     private var applyColorsWork: DispatchWorkItem?
@@ -165,6 +165,18 @@ final class PointerStore: ObservableObject {
     func select(_ preset: Preset) {
         if editingPresetID != preset.id { editingPresetID = nil }
         apply(preset)
+        repinControllingApp(to: preset)
+    }
+
+    /// While a ruled app is in control (e.g. Claude is active), picking a preset pins that
+    /// app to it, so an app only ever shows on one preset.
+    private func repinControllingApp(to preset: Preset) {
+        guard appRulesEnabled, let bundleID = activeRuleBundleID,
+              let index = appRules.firstIndex(where: { $0.bundleID == bundleID }),
+              appRules[index].presetID != preset.id else { return }
+        appRules[index].presetID = preset.id
+        saveAppRules()
+        flash(appRules[index])
     }
 
     /// The user's own preset picked last, when the pointer has since been changed away from it.
@@ -196,14 +208,52 @@ final class PointerStore: ObservableObject {
         savePresets()
     }
 
+    /// What a delete removed, so it can be undone for a few seconds.
+    struct DeletedPreset {
+        let preset: Preset
+        let index: Int
+        let ruleIDs: [UUID]
+    }
+    @Published private(set) var recentlyDeleted: DeletedPreset?
+    private var undoExpiry: DispatchWorkItem?
+
     func delete(_ preset: Preset) {
-        customPresets.removeAll { $0.id == preset.id }
+        guard let index = customPresets.firstIndex(where: { $0.id == preset.id }) else { return }
+        let ruleIDs = appRules.filter { $0.presetID == preset.id }.map(\.id)
+        customPresets.remove(at: index)
         if editingPresetID == preset.id { editingPresetID = nil }
         savePresets()
-        if appRules.contains(where: { $0.presetID == preset.id }) {
+        if !ruleIDs.isEmpty {
             appRules = appRules.map { var r = $0; if r.presetID == preset.id { r.presetID = Self.defaultPresetID }; return r }
             saveAppRules()
         }
+        recentlyDeleted = DeletedPreset(preset: preset, index: index, ruleIDs: ruleIDs)
+        undoExpiry?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.recentlyDeleted = nil }
+        undoExpiry = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 6, execute: work)
+    }
+
+    /// Puts the last deleted preset back where it was, with its app rules.
+    func undoDelete() {
+        guard let deleted = recentlyDeleted else { return }
+        customPresets.insert(deleted.preset, at: min(deleted.index, customPresets.count))
+        savePresets()
+        if !deleted.ruleIDs.isEmpty {
+            appRules = appRules.map { var r = $0; if deleted.ruleIDs.contains(r.id) { r.presetID = deleted.preset.id }; return r }
+            saveAppRules()
+        }
+        recentlyDeleted = nil
+        undoExpiry?.cancel()
+    }
+
+    /// One line for the top of the menu: which app (if any) chose the pointer, and which preset.
+    var statusText: String {
+        let presetName = allPresets.first { $0.id == activePresetID }?.name ?? "Custom"
+        if appRulesEnabled, let id = activeRuleBundleID, let rule = appRules.first(where: { $0.bundleID == id }) {
+            return "\(rule.appName) → \(presetName)"
+        }
+        return presetName
     }
 
     private func loadPresets() {
