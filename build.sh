@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
-# Builds dist/BetterPointer.app with the Command Line Tools (no Xcode needed).
+# Builds "dist/Where's My Mouse.app" with the Command Line Tools (no Xcode needed).
 #
-#   ./build.sh             build dist/BetterPointer.app
+#   ./build.sh             build "dist/Where's My Mouse.app"
 #   ./build.sh --install   build, copy to /Applications, and launch
 #
 # Env:
 #   ARCH=universal         build arm64 + x86_64 (default: this Mac's arch)
-#   SIGN_IDENTITY="Name"   codesign identity. Defaults to "BetterPointer Self-Signed"
+#   SIGN_IDENTITY="Name"   codesign identity. Defaults to "WheresMyMouse Self-Signed"
 #                          if scripts/setup-signing.sh has been run, else ad-hoc "-".
 #                          A stable identity keeps Full Disk Access across rebuilds.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-APP_NAME=BetterPointer
-BUNDLE_ID=com.betterpointer.BetterPointer
+APP_NAME="Where's My Mouse"   # the .app shown in Finder
+EXECUTABLE=WheresMyMouse
+BUNDLE_ID=com.wheresmymouse.WheresMyMouse
 APP="dist/$APP_NAME.app"
 ARCH="${ARCH:-$(uname -m)}"
-SELF_SIGNED="BetterPointer Self-Signed"
+SELF_SIGNED="WheresMyMouse Self-Signed"
 if [[ -z "${SIGN_IDENTITY:-}" ]]; then
     if security find-certificate -c "$SELF_SIGNED" >/dev/null 2>&1; then
         SIGN_IDENTITY="$SELF_SIGNED"
@@ -36,11 +37,11 @@ compile() {
 
 echo "Compiling ($ARCH)…"
 if [[ "$ARCH" == universal ]]; then
-    compile arm64 build/$APP_NAME-arm64
-    compile x86_64 build/$APP_NAME-x86_64
-    lipo -create build/$APP_NAME-arm64 build/$APP_NAME-x86_64 -output "$APP/Contents/MacOS/$APP_NAME"
+    compile arm64 build/$EXECUTABLE-arm64
+    compile x86_64 build/$EXECUTABLE-x86_64
+    lipo -create build/$EXECUTABLE-arm64 build/$EXECUTABLE-x86_64 -output "$APP/Contents/MacOS/$EXECUTABLE"
 else
-    compile "$ARCH" "$APP/Contents/MacOS/$APP_NAME"
+    compile "$ARCH" "$APP/Contents/MacOS/$EXECUTABLE"
 fi
 
 cp Resources/Info.plist "$APP/Contents/Info.plist"
@@ -50,7 +51,7 @@ codesign --force --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
 echo "Built $APP (signed: $SIGN_IDENTITY)"
 
 if [[ "${1:-}" == "--install" ]]; then
-    pkill -x "$APP_NAME" 2>/dev/null || true
+    pkill -x "$EXECUTABLE" 2>/dev/null || true
     rm -rf "/Applications/$APP_NAME.app"
     cp -R "$APP" /Applications/
     open "/Applications/$APP_NAME.app"

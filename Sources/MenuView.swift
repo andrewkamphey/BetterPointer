@@ -8,7 +8,7 @@ struct MenuView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("BetterPointer").font(.headline)
+                Text("Where's My Mouse?").font(.headline)
                 Spacer()
                 Text(String(format: "%.1f×", store.size)).foregroundStyle(.secondary).monospacedDigit()
             }
@@ -74,7 +74,7 @@ struct MenuView: View {
             Toggle("Launch at login", isOn: Binding(get: { store.launchAtLogin }, set: { store.setLaunchAtLogin($0) }))
             HStack {
                 Spacer()
-                Button("Quit BetterPointer") { NSApp.terminate(nil) }
+                Button("Quit Where's My Mouse") { NSApp.terminate(nil) }
                     .keyboardShortcut("q")
             }
         }
@@ -144,7 +144,7 @@ struct MenuView: View {
             Label("Colors need Full Disk Access", systemImage: "exclamationmark.triangle.fill")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(.orange)
-            Text("Size works without it. Add BetterPointer in Privacy & Security → Full Disk Access, then reopen this menu.")
+            Text("Size works without it. Add Where's My Mouse in Privacy & Security → Full Disk Access, then reopen this menu.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)

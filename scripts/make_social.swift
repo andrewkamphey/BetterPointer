@@ -39,20 +39,20 @@ func text(_ s: String, at p: CGPoint, size: CGFloat, weight: NSFont.Weight, colo
     NSAttributedString(string: s, attributes: [.font: NSFont.systemFont(ofSize: size, weight: weight), .foregroundColor: color])
         .draw(at: p)
 }
-text("BetterPointer", at: CGPoint(x: 70, y: 400), size: 92, weight: .heavy, color: .white)
-text("Make your Mac's pointer", at: CGPoint(x: 74, y: 330), size: 38, weight: .semibold, color: srgb(0.88, 0.88, 0.95))
-text("impossible to miss.", at: CGPoint(x: 74, y: 284), size: 38, weight: .semibold, color: srgb(0.88, 0.88, 0.95))
-text("For screen recordings, demos & video calls.", at: CGPoint(x: 74, y: 210), size: 27, weight: .semibold,
+text("Where's", at: CGPoint(x: 70, y: 455), size: 104, weight: .heavy, color: .white)
+text("My Mouse?", at: CGPoint(x: 70, y: 345), size: 104, weight: .heavy, color: .white)
+text("Make your Mac's pointer impossible to miss.", at: CGPoint(x: 76, y: 270), size: 32, weight: .semibold, color: srgb(0.88, 0.88, 0.95))
+text("For screen recordings, demos & video calls.", at: CGPoint(x: 76, y: 215), size: 27, weight: .semibold,
      color: srgb(0.45, 0.65, 1))
-text("1×–10× · any fill & outline · one-click presets", at: CGPoint(x: 74, y: 168), size: 23, weight: .regular,
+text("Up to 30× · any color · presets per app", at: CGPoint(x: 76, y: 170), size: 23, weight: .regular,
      color: srgb(0.65, 0.65, 0.75))
-text("Free & open source for macOS 13+", at: CGPoint(x: 74, y: 90), size: 22, weight: .medium, color: srgb(0.5, 0.5, 0.6))
+text("Free & open source for macOS 13+", at: CGPoint(x: 76, y: 90), size: 22, weight: .medium, color: srgb(0.5, 0.5, 0.6))
 
 // The real menu, rendered by scripts/snapshot-menu.sh
 let menu = NSImage(contentsOfFile: "docs/menu-dark.png")!
-let menuH: CGFloat = 576
+let menuH: CGFloat = 590
 let menuW = menuH * menu.size.width / menu.size.height
-let menuRect = NSRect(x: 800, y: (H - menuH) / 2, width: menuW, height: menuH)
+let menuRect = NSRect(x: 850, y: (H - menuH) / 2, width: menuW, height: menuH)
 let clip = NSBezierPath(roundedRect: menuRect, xRadius: 14, yRadius: 14)
 ctx.saveGState()
 ctx.setShadow(offset: CGSize(width: 0, height: -12), blur: 40, color: NSColor.black.withAlphaComponent(0.6).cgColor)
@@ -64,9 +64,9 @@ menu.draw(in: menuRect)
 ctx.restoreGState()
 srgb(1, 1, 1, 0.12).setStroke(); clip.lineWidth = 1.5; clip.stroke()
 
-// Big pointer in the "Screen Recording" preset's colors, tapping its row
-let rowY = menuRect.maxY - menuH * (387.0 / 972.0)
-pointer(tip: CGPoint(x: menuRect.minX + menuW * 0.9, y: rowY - 4), height: 170, fill: srgb(0, 0.45, 1), outline: .white)
+// Big pointer in the "Recording" preset's colors, tapping its row
+let rowY = menuRect.maxY - menuH * (207.0 / 1302.0)
+pointer(tip: CGPoint(x: menuRect.minX + menuW * 0.74, y: rowY - 4), height: 170, fill: srgb(0, 0.45, 1), outline: .white)
 
 NSGraphicsContext.restoreGraphicsState()
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: "docs/social-preview.png"))

@@ -12,8 +12,16 @@ enum SnapshotMenu {
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
-        let preset = Preset.builtIns.first { $0.name == "Default" }!
-        let store = PointerStore(snapshotOf: preset)
+        // Sample presets and rules so the screenshot shows what the app does.
+        let recording = Preset(name: "Recording", size: 4, fill: RGBA(red: 0, green: 0.45, blue: 1), outline: .white)
+        let presenting = Preset(name: "Presenting", size: 6, fill: .red, outline: .white)
+        let huge = Preset(name: "Huge Green", size: 12, fill: RGBA(red: 0.2, green: 0.8, blue: 0.3), outline: .black)
+        let rules = [
+            AppRule(bundleID: "com.obsproject.obs-studio", appName: "OBS", presetID: recording.id),
+            AppRule(bundleID: "com.loom.desktop", appName: "Loom", presetID: recording.id),
+            AppRule(bundleID: "com.apple.FaceTime", appName: "FaceTime", presetID: presenting.id),
+        ]
+        let store = PointerStore(snapshotOf: recording, presets: [recording, presenting, huge], rules: rules)
         let root = MenuView()
             .environmentObject(store)
             .background(Color(nsColor: .windowBackgroundColor))

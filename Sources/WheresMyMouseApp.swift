@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct BetterPointerApp: App {
+struct WheresMyMouseApp: App {
     @StateObject private var store = PointerStore()
 
     var body: some Scene {

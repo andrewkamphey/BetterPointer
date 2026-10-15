@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # One-time setup: creates a self-signed code-signing certificate in your login
-# keychain so BetterPointer keeps a stable identity across rebuilds. macOS then
+# keychain so Where's My Mouse keeps a stable identity across rebuilds. macOS then
 # remembers the Full Disk Access grant instead of resetting it every build.
 #
 # The certificate is local to this Mac and only used to sign your own build.
-# Remove it any time in Keychain Access (search "BetterPointer Self-Signed").
+# Remove it any time in Keychain Access (search "WheresMyMouse Self-Signed").
 set -euo pipefail
 
-NAME="BetterPointer Self-Signed"
+NAME="WheresMyMouse Self-Signed"
 KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
 
 if security find-certificate -c "$NAME" "$KEYCHAIN" >/dev/null 2>&1; then
@@ -42,4 +42,4 @@ PASS="$(/usr/bin/openssl rand -hex 16)"
 security import "$TMP/cert.p12" -k "$KEYCHAIN" -P "$PASS" -T /usr/bin/codesign >/dev/null
 
 echo "Done. ./build.sh will now sign with \"$NAME\"."
-echo "Grant Full Disk Access to BetterPointer once more after the next build; it will stick from then on."
+echo "Grant Full Disk Access to Where's My Mouse once more after the next build; it will stick from then on."

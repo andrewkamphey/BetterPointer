@@ -59,10 +59,13 @@ final class PointerStore: ObservableObject {
     }
 
     /// A store showing `preset` as the current pointer, for rendering screenshots.
-    init(snapshotOf preset: Preset) {
+    init(snapshotOf preset: Preset, presets: [Preset] = [], rules: [AppRule] = []) {
         size = preset.size
         fill = preset.fill
         outline = preset.outline
+        customPresets = presets
+        appRules = rules
+        selectedPresetID = preset.id
         hasFullDiskAccess = true
         isSnapshot = true
     }
@@ -351,7 +354,7 @@ final class PointerStore: ObservableObject {
         do {
             if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
         } catch {
-            NSLog("BetterPointer: launch at login change failed: \(error)")
+            NSLog("WheresMyMouse: launch at login change failed: \(error)")
         }
         launchAtLogin = SMAppService.mainApp.status == .enabled
     }
