@@ -185,7 +185,7 @@
   .sheetui .sel { position: absolute; left: 28%; top: 38%; width: 14%; height: 7.5%; border: 2px solid #1a73e8; }
   .rule {
     position: absolute; right: 2.5%; top: 6%; background: rgba(13,14,22,0.85); color: #fff; border-radius: 12px;
-    padding: 0.6em 0.9em; font-size: clamp(10px, 1.25vw, 15px); font-weight: 700; display: flex; align-items: center; gap: 0.6em;
+    padding: 0.55em 1em; font-size: max(13px, 2.2cqw); font-weight: 800; display: flex; align-items: center; gap: 0.6em;
   }
   .rule .dot { width: 0.9em; height: 0.9em; border-radius: 50%; }
   @media (prefers-reduced-motion: reduce) {
@@ -275,6 +275,11 @@
   .state { position: absolute; inset: 0; transition: opacity 0.3s; }
   .desk.show-ours .state.yours, .desk:not(.show-ours) .state.ours { opacity: 0; }
   @media (max-width: 860px) { .pair { grid-template-columns: 1fr; } }
+
+  .why { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 10px; max-width: 760px; }
+  .why li { position: relative; padding-left: 28px; color: var(--muted); font-size: 17px; }
+  .why li::before { content: ""; position: absolute; left: 0; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--rainbow); }
+  .why b { color: var(--text); }
 
   /* use cases: a before/after scene, then the problem and the fix */
   .uses-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
@@ -502,20 +507,25 @@
 
 <section id="app-rules">
   <div class="wrap">
-    <h2>Every app gets its own pointer.</h2>
-    <p class="lead">Pin a preset to an app. Switch to Claude and your pointer turns big and blue. Click into Google Sheets and it goes red. Quit them and it's back to Default. Follow the app you're using, or the last one you opened.</p>
-    <div class="desk" role="img" aria-label="App rules: with Claude in front the pointer is big and blue; with Google Sheets in front it is big and red">
+    <h2>Different looks for different apps.</h2>
+    <p class="lead">Set a different preset for each app, and your pointer switches the moment you click into it.</p>
+    <ul class="why">
+      <li><b>Stand out from the app.</b> Pick a pointer that contrasts with the app's own colors, so it never blends in.</li>
+      <li><b>Switch contexts faster.</b> Blue means writing, green means numbers; your brain knows where you are before you read a thing.</li>
+      <li><b>Match the app.</b> Or go the other way and give each app a pointer in its own brand colors.</li>
+    </ul>
+    <div class="desk" role="img" aria-label="With Claude in front the pointer is big and blue; with Google Sheets in front it is big and green">
       <div class="menubar"><span>●</span><span>File</span><span>Edit</span><span>View</span><span class="sp"></span><img src="assets/favicon.png" alt=""><span>Tue 10:41</span></div>
       <div class="cycle2">
         <div class="layer">
           <div class="win" style="left:40%;top:22%;width:52%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Google Sheets</span></div><div class="sheetui"><span class="sel"></span></div></div><div class="win" style="left:7%;top:12%;width:50%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Claude</span></div><div class="chatui"><b class="me" style="top:10%;width:38%"></b><b style="top:22%;width:62%"></b><b style="top:31%;width:55%"></b><b style="top:40%;width:44%"></b><span class="box"></span></div></div>
           <svg class="ptr big" viewBox="0 0 62 100" style="left:30%;top:34%" aria-hidden="true"><use href="#arrow" fill="#0a84ff" stroke="#fff"/></svg>
-          <span class="rule"><span class="dot" style="background:#0a84ff"></span>Claude → Big Blue</span>
+          <span class="rule"><span class="dot" style="background:#0a84ff"></span>Claude: Blue</span>
         </div>
         <div class="layer">
           <div class="win" style="left:7%;top:12%;width:50%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Claude</span></div><div class="chatui"><b class="me" style="top:10%;width:38%"></b><b style="top:22%;width:62%"></b><b style="top:31%;width:55%"></b><b style="top:40%;width:44%"></b><span class="box"></span></div></div><div class="win" style="left:40%;top:22%;width:52%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Google Sheets</span></div><div class="sheetui"><span class="sel"></span></div></div>
-          <svg class="ptr big" viewBox="0 0 62 100" style="left:62%;top:40%" aria-hidden="true"><use href="#arrow" fill="#ff3b30" stroke="#fff"/></svg>
-          <span class="rule"><span class="dot" style="background:#ff3b30"></span>Google Sheets → Red</span>
+          <svg class="ptr big" viewBox="0 0 62 100" style="left:62%;top:40%" aria-hidden="true"><use href="#arrow" fill="#34c759" stroke="#0d0e16"/></svg>
+          <span class="rule"><span class="dot" style="background:#34c759"></span>Sheets: Green</span>
         </div>
       </div>
     </div>
