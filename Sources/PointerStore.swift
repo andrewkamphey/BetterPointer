@@ -11,6 +11,9 @@ final class PointerStore: ObservableObject {
     @Published private(set) var hasFullDiskAccess = CursorController.hasFullDiskAccess
     @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
     @Published private(set) var shakeToLocate = CursorController.shakeToLocate
+    /// Our own shake-to-find: briefly grows the pointer at any size.
+    @Published private(set) var superShakeEnabled = UserDefaults.standard.object(forKey: superShakeKey) as? Bool ?? true
+    private var superShake: SuperShake?
     /// The custom preset being edited, if any.
     @Published var editingPresetID: UUID?
     /// The preset last picked from the list (or by an app rule).
@@ -24,6 +27,7 @@ final class PointerStore: ObservableObject {
 
     private static let presetsKey = "customPresets"
     private static let sizeKey = "size"
+    private static let superShakeKey = "superShake"
     private static let extendedSizesKey = "extendedSizes"
     private static let appRulesKey = "appRules"
     private static let appRulesEnabledKey = "appRulesEnabled"
@@ -57,6 +61,9 @@ final class PointerStore: ObservableObject {
         if !extendedSizes, size > CursorController.standardMaxSize { extendedSizes = true }
         loadAppRules()
         observeRunningApps()
+        let shake = SuperShake { [weak self] in self?.size ?? 1 }
+        shake.setEnabled(superShakeEnabled)
+        superShake = shake
     }
 
     /// A store showing `preset` as the current pointer, for rendering screenshots.
@@ -81,7 +88,7 @@ final class PointerStore: ObservableObject {
 
     /// Re-reads system state, e.g. after the user changed it in System Settings.
     func refresh() {
-        guard !isSnapshot else { return }
+        guard !isSnapshot, superShake?.isBoosting != true else { return }
         size = CursorController.size
         fill = CursorController.fill ?? fill
         outline = CursorController.outline ?? outline
@@ -93,6 +100,7 @@ final class PointerStore: ObservableObject {
     // MARK: Live adjustments
 
     func setSize(_ newSize: Double) {
+        superShake?.cancel()
         size = newSize
         syncEditingPreset()
         CursorController.setSize(newSize, persist: false)
@@ -404,6 +412,12 @@ final class PointerStore: ObservableObject {
     }
 
     // MARK: Shake to locate
+
+    func setSuperShake(_ on: Bool) {
+        superShakeEnabled = on
+        UserDefaults.standard.set(on, forKey: Self.superShakeKey)
+        superShake?.setEnabled(on)
+    }
 
     func setShakeToLocate(_ on: Bool) {
         CursorController.setShakeToLocate(on)

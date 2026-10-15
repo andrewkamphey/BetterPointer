@@ -20,6 +20,7 @@ A native macOS menu bar app for managing pointer size and color, for when you (o
 - **Fill and outline colors**: quick swatches, or any color from the color picker.
 - **Presets**: starts with just Default; save the current pointer as your own (e.g. a big blue one for recording), then rename, update, or delete it.
 - **App rules**: add apps to a preset with its ＋ button (e.g. OBS and Loom → a big blue "Recording" preset). While one of those apps is in use, the pointer switches to that preset; an app can only belong to one preset, and moving it asks first. Follow the active app or the last one opened; with none open, it's back to Default.
+- **Super shake**: shake the mouse and the pointer briefly grows to 3× its size (at least 10×, up to 30×), at any size. macOS's own shake-to-locate tops out around 4×; there's a switch for that too.
 - **Launch at login**: and sizes above 4× are re-applied when the app starts.
 
 <img src="docs/menu-dark.png" width="300" alt="The Where's My Mouse? menu">

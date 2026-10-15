@@ -124,10 +124,19 @@ struct MenuView: View {
             SizeSlider(size: Binding(get: { store.size }, set: { store.setSize($0) }), maxSize: store.maxSize)
             Toggle("Extra large sizes, up to 30×", isOn: Binding(get: { store.extendedSizes }, set: { store.setExtendedSizes($0) }))
                 .font(.callout)
+            Toggle("Super shake", isOn: Binding(get: { store.superShakeEnabled }, set: { store.setSuperShake($0) }))
+                .font(.callout)
+                .help("Shake the mouse and your pointer briefly grows to 3× its size (up to 30×), at any size.")
             HStack {
-                Toggle("Shake mouse to find pointer", isOn: Binding(get: { store.shakeToLocate }, set: { store.setShakeToLocate($0) }))
-                    .font(.callout)
-                    .help("macOS's own trick: shake the mouse and the pointer briefly grows. Same switch as in Accessibility → Display.")
+                VStack(alignment: .leading, spacing: 2) {
+                    Toggle("macOS shake to find", isOn: Binding(get: { store.shakeToLocate }, set: { store.setShakeToLocate($0) }))
+                        .font(.callout)
+                    Text("Tops out around 4×, so it does little once your pointer is big.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .padding(.leading, 20)
+                }
+                .help("macOS's own shake-to-locate. Same switch as in Accessibility → Display.")
                 Spacer()
                 Button { CursorController.openPointerSettings() } label: {
                     Image(systemName: "gearshape").frame(width: 24, height: 24).contentShape(Rectangle())
