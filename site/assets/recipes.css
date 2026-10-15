@@ -17,11 +17,11 @@
 .rc-ar { position: absolute; left: 50%; top: 50%; height: var(--h); width: auto; transform: translate(-42%, -50%); overflow: visible;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3)); transition: height 0.12s ease-out; }
 
-/* split / light / dark switch on a preview */
-.rc-mode { position: absolute; top: 10px; right: 10px; display: flex; padding: 2px; border-radius: 999px; background: rgba(23, 26, 42, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.14); backdrop-filter: blur(6px); }
-.rc-mode button { width: 26px; height: 22px; border: 0; border-radius: 999px; background: none; color: #aeb2c6; font-size: 13px; line-height: 1; cursor: pointer; padding: 0; }
-.rc-mode button[aria-pressed=true] { background: #f3f4fa; color: #0d0e16; }
+/* split / light / dark switch: a full-width bar under the preview */
+.rc-mode { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid var(--line); }
+.rc-mode button { height: 34px; border: 0; border-radius: 10px; background: none; color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.rc-mode button:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.rc-mode button[aria-pressed=true] { background: var(--text); color: #0d0e16; }
 
 /* the size button opens a slider */
 .rc-sz { display: inline-flex; align-items: center; gap: 5px; border: 1px solid rgba(106, 166, 255, 0.35); background: rgba(106, 166, 255, 0.1);
@@ -94,3 +94,5 @@
 .rc-spec .rc-edit { display: grid; padding: 2px 0 4px; }
 .rc-spec .rc-edit[hidden] { display: none; }
 .rc-seg[hidden] { display: none; }
+/* list thumbnails are small, so zoom them in (same zoom for every row, so sizes still compare) */
+.rc-pair .rc-ar { height: calc(var(--h) * 1.6); }

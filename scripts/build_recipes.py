@@ -3,7 +3,7 @@
 (between the recipes:start/end markers). Edit RECIPES or MONTHS here, then run:
     python3 scripts/build_recipes.py
 Styles and behavior live in site/assets/recipes.css and recipes.js."""
-import html, json, math, re
+import html, json, re
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parent.parent / "site"
@@ -52,18 +52,18 @@ SHIPPED_MONTH = 9  # the home page HTML ships with October's recipe; recipes.js 
 
 E = html.escape
 def slug(n): return re.sub(r"[^a-z0-9]+", "-", n.lower().replace("'", "")).strip("-")
-def h(s): return 40 + 56 * math.log(s + 1) / math.log(31)  # same curve as recipes.js
+def h(s): return s / 15 * 92  # true to scale: 15x fills the preview, bigger spills off the edges. Same as recipes.js
 BY = {r[0]: r for r in RECIPES}
 PENCIL = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 1.5l3 3L5 14H2v-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>'
 
 def arrow(f, o, s): return f'<svg class="rc-ar" viewBox="0 0 62 100" style="--h:{h(s):.1f}%" aria-hidden="true"><use href="#arrow" fill="{f}" stroke="{o}"/></svg>'
 def split(f, o, s):
-    return (f'<div class="rc-pv" data-mode="split"><div class="rc-half l"></div><div class="rc-half d"></div>{arrow(f, o, s)}'
-            '<span class="rc-lbl l">Light</span><span class="rc-lbl d">Dark</span>'
+    return (f'<div class="rc-shot"><div class="rc-pv" data-mode="split"><div class="rc-half l"></div><div class="rc-half d"></div>{arrow(f, o, s)}'
+            '<span class="rc-lbl l">Light</span><span class="rc-lbl d">Dark</span></div>'
             '<div class="rc-mode" role="group" aria-label="Background">'
-            '<button type="button" data-mode="split" aria-pressed="true" title="Split">◐</button>'
-            '<button type="button" data-mode="light" aria-pressed="false" title="Light">☀</button>'
-            '<button type="button" data-mode="dark" aria-pressed="false" title="Dark">☾</button></div></div>')
+            '<button type="button" data-mode="split" aria-pressed="true">◐ Split</button>'
+            '<button type="button" data-mode="light" aria-pressed="false">☀ Light</button>'
+            '<button type="button" data-mode="dark" aria-pressed="false">☾ Dark</button></div></div>')
 def pair(f, o, s): return f'<div class="rc-pair"><div class="rc-pv solid-l">{arrow(f, o, s)}</div><div class="rc-pv solid-d">{arrow(f, o, s)}</div></div>'
 def size_btn(n, s): return f'<button type="button" class="rc-sz" aria-expanded="false" aria-label="Try {E(n)} at other sizes"><b>{s}×</b>{PENCIL}</button>'
 def size_edit(n, s):

@@ -1,12 +1,12 @@
 // Cursor Recipes: preview background switch, size slider, recipe of the month, and the /recipes filters.
 (function () {
-  // Pointer height in a preview: big at every size, still growing up to 30x. Matches scripts/build_recipes.py.
-  function height(s) { return 40 + 56 * Math.log(s + 1) / Math.log(31); }
+  // Pointer height in a preview, true to scale: 15x fills it, bigger spills off the edges. Matches scripts/build_recipes.py.
+  function height(s) { return s / 15 * 92; }
   function fmt(s) { return (s % 1 ? s.toFixed(1) : String(s)) + '×'; }
 
   function setMode(pv, mode) {
     pv.dataset.mode = mode;
-    pv.querySelectorAll('.rc-mode button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
+    pv.closest('.rc-shot').querySelectorAll('.rc-mode button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === mode)); });
   }
 
   function setSize(r, s) {
@@ -20,7 +20,7 @@
 
   document.addEventListener('click', function (e) {
     var mode = e.target.closest('.rc-mode button');
-    if (mode) { setMode(mode.closest('.rc-pv'), mode.dataset.mode); return; }
+    if (mode) { setMode(mode.closest('.rc-shot').querySelector('.rc-pv'), mode.dataset.mode); return; }
     var sz = e.target.closest('.rc-sz');
     if (sz) {
       var edit = sz.closest('[data-size]').querySelector('.rc-edit');
