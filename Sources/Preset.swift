@@ -40,6 +40,25 @@ struct RGBA: Codable, Hashable {
     static let red = RGBA(red: 1, green: 0.15, blue: 0.1)
 }
 
+/// Which app's rule applies when several rule apps are open.
+enum RuleTrigger: String, CaseIterable, Identifiable {
+    /// The app you're using; apps without a rule keep the last ruled app's preset.
+    case activeApp
+    /// The most recently launched rule app.
+    case lastOpened
+
+    var id: String { rawValue }
+    var label: String { self == .activeApp ? "Active app" : "Last opened" }
+}
+
+/// "While this app is open, use this preset."
+struct AppRule: Identifiable, Codable, Hashable {
+    var id = UUID()
+    var bundleID: String
+    var appName: String
+    var presetID: UUID
+}
+
 struct Preset: Identifiable, Codable, Hashable {
     var id = UUID()
     var name: String
@@ -54,10 +73,6 @@ struct Preset: Identifiable, Codable, Hashable {
 
     static let builtIns: [Preset] = [
         builtIn(1, "Default", size: 1, fill: .black, outline: .white),
-        builtIn(2, "Large", size: 2.5, fill: .black, outline: .white),
-        builtIn(3, "High Contrast", size: 2, fill: .yellow, outline: .black),
-        builtIn(4, "Presentation", size: 3, fill: .red, outline: .white),
-        builtIn(5, "Screen Recording", size: 2, fill: RGBA(red: 0, green: 0.45, blue: 1), outline: .white),
     ]
 
     /// Built-ins get fixed IDs so they stay stable across launches.

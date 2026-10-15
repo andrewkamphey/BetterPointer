@@ -12,7 +12,13 @@ import CoreGraphics
 /// They write `cursorFill` / `cursorOutline` in com.apple.universalaccess, which
 /// macOS only allows for processes with Full Disk Access.
 enum CursorController {
-    static let sizeRange: ClosedRange<Double> = 1...10
+    /// The slider's normal range, and the "extra large" range behind a checkbox.
+    static let standardMaxSize: Double = 10
+    static let extendedMaxSize: Double = 30
+    /// The window server ignores 16× and above; bigger sizes use `OverlayPointer`.
+    static let overlayMinSize: Double = 16
+    private static let nativeMaxSize: Double = 15.99
+    static let sizeRange: ClosedRange<Double> = 1...extendedMaxSize
     /// System Settings' own maximum. Larger sizes render fine, but only this
     /// much is written to the system preference; the app re-applies the rest.
     static let systemMaxSize: Double = 4
@@ -39,6 +45,7 @@ enum CursorController {
     // MARK: Size
 
     static var size: Double {
+        if OverlayPointer.shared.isActive { return OverlayPointer.shared.size }
         var scale: Float = 1
         _ = CGSGetCursorScale(CGSMainConnectionID(), &scale)
         return Double(scale)
@@ -47,7 +54,13 @@ enum CursorController {
     /// Applies the size live. `persist` also saves it (capped at 4×) so it survives logout.
     static func setSize(_ size: Double, persist: Bool) {
         let clamped = min(max(size, sizeRange.lowerBound), sizeRange.upperBound)
-        _ = CGSSetCursorScale(CGSMainConnectionID(), Float(clamped))
+        if clamped >= overlayMinSize {
+            OverlayPointer.shared.show(size: clamped, fill: fill ?? .black, outline: outline ?? .white)
+            _ = CGSSetCursorScale(CGSMainConnectionID(), 1)
+        } else {
+            OverlayPointer.shared.hide()
+            _ = CGSSetCursorScale(CGSMainConnectionID(), Float(min(clamped, nativeMaxSize)))
+        }
         if persist {
             CFPreferencesSetValue(sizeKey, NSNumber(value: min(clamped, systemMaxSize)), domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
             CFPreferencesSynchronize(domain, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
@@ -74,8 +87,11 @@ enum CursorController {
         setOutline?(outline.cgColor)
         setFill?(fill.cgColor)
         CFPreferencesAppSynchronize(domain)
+        // Re-registering resets the scale (capped at 10×), so restore ours.
+        let currentSize = size
         unregisterCursors?()
         registerCursors?()
+        setSize(currentSize, persist: false)
     }
 
     // MARK: Permissions

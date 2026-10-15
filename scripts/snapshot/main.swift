@@ -12,7 +12,7 @@ enum SnapshotMenu {
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
 
-        let preset = Preset.builtIns.first { $0.name == "Screen Recording" }!
+        let preset = Preset.builtIns.first { $0.name == "Default" }!
         let store = PointerStore(snapshotOf: preset)
         let root = MenuView()
             .environmentObject(store)

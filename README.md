@@ -4,7 +4,7 @@
   <img src="docs/icon.png" width="128" height="128" alt="BetterPointer icon">
 </p>
 
-A native macOS menu bar app for managing pointer size and color. Make the pointer bigger (up to 10×), change its fill and outline colors, and switch between presets in one click, live, without opening System Settings.
+A native macOS menu bar app for managing pointer size and color. Make the pointer bigger (up to 15×), change its fill and outline colors, and switch between presets in one click, live, without opening System Settings.
 
 ![macOS 13+](https://img.shields.io/badge/macOS-13%2B-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.10-orange)
@@ -14,10 +14,10 @@ A native macOS menu bar app for managing pointer size and color. Make the pointe
 
 ## Features
 
-- **Size from 1× to 10×**: past System Settings' 4× limit, applied live as you drag.
+- **Size from 1× to 10×**: past System Settings' 4× limit, applied live as you drag. Tick **Extra large sizes** for up to 15×.
 - **Fill and outline colors**: quick swatches, or any color from the color picker.
-- **Built-in presets**: Default, Large, High Contrast, Presentation, Screen Recording.
-- **Custom presets**: save the current pointer, rename, update, or delete it.
+- **Presets**: starts with just Default; save the current pointer as your own (e.g. a big blue one for recording), then rename, update, or delete it.
+- **App rules**: pick any app and a preset; while that app is open, the pointer switches to it (e.g. OBS → blue, Loom → orange). The most recently opened app wins; with none open, it's back to Default.
 - **Launch at login**: and sizes above 4× are re-applied when the app starts.
 
 <img src="docs/menu-dark.png" width="300" alt="The BetterPointer menu">
@@ -37,7 +37,7 @@ A tiny pointer is fine when you're the only one looking at the screen. It gets l
 - **Dark mode and busy backgrounds.** A light or colored pointer stays visible on dark apps, photos, maps, and video editors.
 - **Helping someone remotely.** Make the pointer obvious when you're guiding a family member or customer through their own Mac.
 
-Presets make the switching fast: keep "Default" for everyday work, and flip to "Screen Recording" or "Presentation" right before you hit record or share.
+Presets make the switching fast: keep "Default" for everyday work, and flip to your own recording or presenting preset right before you hit record or share. App rules can even do it for you while a recording app is open.
 
 ## Installation
 
@@ -78,7 +78,7 @@ cd BetterPointer
 
 | Feature | How | Permission |
 |---|---|---|
-| Size | `CGSSetCursorScale` (private CoreGraphics). Goes past System Settings' 4× limit up to macOS's real 10× cap; the app saves up to 4× to the system and re-applies larger sizes on launch | none |
+| Size | `CGSSetCursorScale` (private CoreGraphics). Goes past System Settings' 4× limit up to 15× (the window server ignores 16× and above; Apple's own redraw code caps at 10×, so the app re-applies the size after color changes); the app saves up to 4× to the system and re-applies larger sizes on launch | none |
 | Fill / outline color | `_AXInterfaceSetCursorColorFill/Outline` to save, then `AXFCursorRegisterAll` to redraw the pointer images (private HIServices / AccessibilityFoundation, same calls System Settings uses) | **Full Disk Access**: macOS rejects writes to `com.apple.universalaccess` without it |
 
 These are private macOS APIs, so a future macOS update could break them.
