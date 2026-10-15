@@ -10,6 +10,7 @@ final class PointerStore: ObservableObject {
     @Published private(set) var customPresets: [Preset] = []
     @Published private(set) var hasFullDiskAccess = CursorController.hasFullDiskAccess
     @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @Published private(set) var shakeToLocate = CursorController.shakeToLocate
     /// The custom preset being edited, if any.
     @Published var editingPresetID: UUID?
     /// The preset last picked from the list (or by an app rule).
@@ -86,6 +87,7 @@ final class PointerStore: ObservableObject {
         outline = CursorController.outline ?? outline
         hasFullDiskAccess = CursorController.hasFullDiskAccess
         launchAtLogin = SMAppService.mainApp.status == .enabled
+        shakeToLocate = CursorController.shakeToLocate
     }
 
     // MARK: Live adjustments
@@ -165,18 +167,22 @@ final class PointerStore: ObservableObject {
     func select(_ preset: Preset) {
         if editingPresetID != preset.id { editingPresetID = nil }
         apply(preset)
-        repinControllingApp(to: preset)
     }
 
-    /// While a ruled app is in control (e.g. Claude is active), picking a preset pins that
-    /// app to it, so an app only ever shows on one preset.
-    private func repinControllingApp(to preset: Preset) {
+    /// When a ruled app is in control but the pointer is on a different preset, the rule
+    /// and that preset, so the menu can offer to pin it. Picking a preset never changes rules by itself.
+    var pinSuggestion: (rule: AppRule, preset: Preset)? {
         guard appRulesEnabled, let bundleID = activeRuleBundleID,
-              let index = appRules.firstIndex(where: { $0.bundleID == bundleID }),
-              appRules[index].presetID != preset.id else { return }
-        appRules[index].presetID = preset.id
-        saveAppRules()
-        flash(appRules[index])
+              let rule = appRules.first(where: { $0.bundleID == bundleID }),
+              let preset = allPresets.first(where: { $0.id == activePresetID }),
+              rule.presetID != preset.id else { return nil }
+        return (rule, preset)
+    }
+
+    func acceptPinSuggestion() {
+        guard let suggestion = pinSuggestion else { return }
+        setPreset(suggestion.preset.id, for: suggestion.rule)
+        if let rule = appRules.first(where: { $0.id == suggestion.rule.id }) { flash(rule) }
     }
 
     /// The user's own preset picked last, when the pointer has since been changed away from it.
@@ -396,6 +402,13 @@ final class PointerStore: ObservableObject {
         } else if hadRule, let preset = allPresets.first(where: { $0.id == Self.defaultPresetID }) {
             apply(preset)
         }
+    }
+
+    // MARK: Shake to locate
+
+    func setShakeToLocate(_ on: Bool) {
+        CursorController.setShakeToLocate(on)
+        shakeToLocate = CursorController.shakeToLocate
     }
 
     // MARK: Launch at login

@@ -94,6 +94,27 @@ enum CursorController {
         setSize(currentSize, persist: false)
     }
 
+    // MARK: Shake to locate
+
+    /// macOS's "Shake mouse pointer to locate". Stored as a global preference the window
+    /// server reads; absent means on.
+    private static let shakeKey = "CGDisableCursorLocationMagnification" as CFString
+
+    static var shakeToLocate: Bool {
+        let disabled = CFPreferencesCopyValue(shakeKey, kCFPreferencesAnyApplication, kCFPreferencesCurrentUser, kCFPreferencesAnyHost) as? Bool
+        return !(disabled ?? false)
+    }
+
+    static func setShakeToLocate(_ on: Bool) {
+        CFPreferencesSetValue(shakeKey, (!on) as CFBoolean, kCFPreferencesAnyApplication, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+        CFPreferencesSynchronize(kCFPreferencesAnyApplication, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)
+    }
+
+    /// The Pointer section of Accessibility settings, where the same switch lives.
+    static func openPointerSettings() {
+        NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Accessibility-Settings.extension?Display")!)
+    }
+
     // MARK: Permissions
 
     /// Full Disk Access probe: the TCC database is only readable with it.

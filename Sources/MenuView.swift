@@ -23,6 +23,7 @@ struct MenuView: View {
 
             if !store.hasFullDiskAccess { fullDiskAccessBanner }
             if let deleted = store.recentlyDeleted { undoBanner(deleted.preset) }
+            if let pin = store.pinSuggestion { pinBanner(pin.rule, pin.preset) }
 
             presetsSection
 
@@ -124,6 +125,18 @@ struct MenuView: View {
             SizeSlider(size: Binding(get: { store.size }, set: { store.setSize($0) }), maxSize: store.maxSize)
             Toggle("Extra large sizes, up to 30×", isOn: Binding(get: { store.extendedSizes }, set: { store.setExtendedSizes($0) }))
                 .font(.callout)
+            HStack {
+                Toggle("Shake mouse to find pointer", isOn: Binding(get: { store.shakeToLocate }, set: { store.setShakeToLocate($0) }))
+                    .font(.callout)
+                    .help("macOS's own trick: shake the mouse and the pointer briefly grows. Same switch as in Accessibility → Display.")
+                Spacer()
+                Button { CursorController.openPointerSettings() } label: {
+                    Image(systemName: "gearshape").frame(width: 24, height: 24).contentShape(Rectangle())
+                }
+                .buttonStyle(.borderless)
+                .help("Open the Pointer settings in System Settings")
+                .accessibilityLabel("Open Pointer settings in System Settings")
+            }
             ColorRow(title: "Fill", color: store.fill, target: .fill, onPick: store.setFill)
             ColorRow(title: "Outline", color: store.outline, target: .outline, onPick: store.setOutline)
         }
@@ -211,6 +224,21 @@ struct MenuView: View {
         }
         .padding(Grid.s + Grid.xs)
         .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+    }
+
+    /// Offered when you pick a preset while an app rule is in control; rules only change on purpose.
+    private func pinBanner(_ rule: AppRule, _ preset: Preset) -> some View {
+        let current = store.allPresets.first { $0.id == rule.presetID }?.name ?? "Default"
+        return HStack(spacing: Grid.s) {
+            Text("\(rule.appName) uses \(current).").font(.callout).foregroundStyle(.secondary).lineLimit(1)
+            Spacer(minLength: Grid.xs)
+            Button("Pin \(preset.name) to \(rule.appName)") { store.acceptPinSuggestion() }
+                .controlSize(.large)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, Grid.s + Grid.xs)
+        .padding(.vertical, Grid.s)
+        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
     }
 
     private func undoBanner(_ preset: Preset) -> some View {
