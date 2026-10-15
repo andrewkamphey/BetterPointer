@@ -4,3 +4,4 @@ spike/*
 !spike/*.swift
 .DS_Store
 .claude/
+.wrangler/

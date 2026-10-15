@@ -1,0 +1,10 @@
+// whereismymouse.com → wheresmymouse.com (permanent redirect, keeps the path and query).
+{
+  "name": "whereismymouse-redirect",
+  "compatibility_date": "2026-10-01",
+  "main": "index.js",
+  "routes": [
+    { "pattern": "whereismymouse.com", "custom_domain": true },
+    { "pattern": "www.whereismymouse.com", "custom_domain": true }
+  ]
+}

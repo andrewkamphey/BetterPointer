@@ -1,0 +1,10 @@
+// wheresmymouse.com: the promo page in site/, served as static assets.
+{
+  "name": "wheresmymouse",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./site" },
+  "routes": [
+    { "pattern": "wheresmymouse.com", "custom_domain": true },
+    { "pattern": "www.wheresmymouse.com", "custom_domain": true }
+  ]
+}

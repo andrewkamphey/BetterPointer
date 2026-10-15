@@ -76,6 +76,10 @@ cd WheresMyMouse
 
 `./build.sh --dmg` also makes `dist/WheresMyMouse.dmg`. `./build.sh` alone puts the app at `dist/Where's My Mouse.app`. `ARCH=universal ./build.sh` builds for both Apple Silicon and Intel.
 
+## Website
+
+`site/` is the promo page at [wheresmymouse.com](https://wheresmymouse.com), served by Cloudflare Workers static assets (`wrangler.jsonc`). Deploy with `npx wrangler deploy`. `site-redirect/` is a tiny Worker that 301-redirects whereismymouse.com to it (`cd site-redirect && npx wrangler deploy`).
+
 ## How it works
 
 | Feature | How | Permission |
