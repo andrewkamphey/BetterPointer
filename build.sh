@@ -3,6 +3,7 @@
 #
 #   ./build.sh             build "dist/Where's My Mouse.app"
 #   ./build.sh --install   build, copy to /Applications, and launch
+#   ./build.sh --dmg       build, then make dist/WheresMyMouse.dmg (drag-to-Applications)
 #
 # Env:
 #   ARCH=universal         build arm64 + x86_64 (default: this Mac's arch)
@@ -49,6 +50,17 @@ cp Resources/Info.plist "$APP/Contents/Info.plist"
 
 codesign --force --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
 echo "Built $APP (signed: $SIGN_IDENTITY)"
+
+if [[ "${1:-}" == "--dmg" ]]; then
+    STAGING="build/dmg"
+    rm -rf "$STAGING" "dist/$EXECUTABLE.dmg"
+    mkdir -p "$STAGING"
+    cp -R "$APP" "$STAGING/"
+    ln -s /Applications "$STAGING/Applications"
+    hdiutil create -volname "$APP_NAME" -srcfolder "$STAGING" -ov -format UDZO "dist/$EXECUTABLE.dmg" >/dev/null
+    rm -rf "$STAGING"
+    echo "Built dist/$EXECUTABLE.dmg"
+fi
 
 if [[ "${1:-}" == "--install" ]]; then
     pkill -x "$EXECUTABLE" 2>/dev/null || true

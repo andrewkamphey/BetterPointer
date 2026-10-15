@@ -1,5 +1,7 @@
 # Where's My Mouse?
 
+**[wheresmymouse.com](https://wheresmymouse.com)**
+
 <p align="center">
   <img src="docs/icon.png" width="128" height="128" alt="Where's My Mouse? icon">
 </p>
@@ -47,8 +49,8 @@ Presets make the switching fast: keep "Default" for everyday work, and flip to y
 
 ### Download
 
-1. Download `WheresMyMouse.zip` from the [latest release](https://github.com/andrewkamphey/WheresMyMouse/releases/latest), or the [nightly build](https://github.com/andrewkamphey/WheresMyMouse/releases/tag/nightly) for the newest commit.
-2. Unzip it and drag **Where's My Mouse.app** into **Applications**.
+1. Download `WheresMyMouse.dmg` (or `WheresMyMouse.zip`) from the [latest release](https://github.com/andrewkamphey/WheresMyMouse/releases/latest), or the [nightly build](https://github.com/andrewkamphey/WheresMyMouse/releases/tag/nightly) for the newest commit.
+2. Open it and drag **Where's My Mouse.app** onto the **Applications** shortcut.
 3. Open it. The app isn't notarized by Apple, so the first launch is blocked:
    - Click **Done** on the warning, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to Where's My Mouse.
    - Or run once in Terminal: `xattr -dr com.apple.quarantine "/Applications/Where's My Mouse.app"`
@@ -72,7 +74,7 @@ cd WheresMyMouse
 ./build.sh --install         # builds, copies to /Applications, launches
 ```
 
-`./build.sh` alone puts the app at `dist/Where's My Mouse.app`. `ARCH=universal ./build.sh` builds for both Apple Silicon and Intel.
+`./build.sh --dmg` also makes `dist/WheresMyMouse.dmg`. `./build.sh` alone puts the app at `dist/Where's My Mouse.app`. `ARCH=universal ./build.sh` builds for both Apple Silicon and Intel.
 
 ## How it works
 

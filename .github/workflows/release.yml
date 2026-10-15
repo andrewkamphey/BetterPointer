@@ -18,8 +18,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build universal app
-        run: ARCH=universal ./build.sh
+      - name: Build universal app and DMG
+        run: ARCH=universal ./build.sh --dmg
 
       - name: Zip app
         run: |
@@ -30,7 +30,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WheresMyMouse
-          path: dist/WheresMyMouse.zip
+          path: |
+            dist/WheresMyMouse.zip
+            dist/WheresMyMouse.dmg
 
       - name: Update nightly release
         if: github.ref == 'refs/heads/main'
@@ -42,12 +44,16 @@ jobs:
             Automated build from the latest commit on main.
 
             **Commit:** ${{ github.sha }}
-          files: dist/WheresMyMouse.zip
+          files: |
+            dist/WheresMyMouse.zip
+            dist/WheresMyMouse.dmg
           prerelease: true
 
       - name: Create tagged release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/WheresMyMouse.zip
+          files: |
+            dist/WheresMyMouse.zip
+            dist/WheresMyMouse.dmg
           generate_release_notes: true
