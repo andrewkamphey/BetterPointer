@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-8VB6DD5LY5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-8VB6DD5LY5');
+</script>
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where's My Mouse? — Make your Mac's pointer impossible to miss</title>
 <meta name="description" content="A free, open-source macOS menu bar app that makes your mouse pointer up to 30× bigger, in any color, with one-click presets and per-app rules. For screen recordings, demos and video calls.">
@@ -751,6 +761,13 @@
     }
     requestAnimationFrame(frame);
   })();
+</script>
+<script>
+  // Count clicks on any Download button as a GA4 "download" event.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href*="/download"]');
+    if (a && window.gtag) gtag('event', 'download', { file_name: 'WheresMyMouse.dmg', link_url: a.href, transport_type: 'beacon' });
+  });
 </script>
 </body>
 </html>
