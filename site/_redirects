@@ -1,0 +1,4 @@
+# Short links. The app itself is hosted on GitHub Releases; these always point at the latest build.
+/download      https://github.com/andrewkamphey/WheresMyMouse/releases/latest/download/WheresMyMouse.dmg  302
+/download.zip  https://github.com/andrewkamphey/WheresMyMouse/releases/latest/download/WheresMyMouse.zip  302
+/github        https://github.com/andrewkamphey/WheresMyMouse  302
