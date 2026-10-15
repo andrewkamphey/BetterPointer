@@ -91,8 +91,9 @@
   nav .links { align-items: center; }
   @media (max-width: 560px) { .settings-pop { position: fixed; left: 16px; right: 16px; top: 64px; width: auto; max-height: 80vh; overflow: auto; } }
 
+  #showcase { padding-top: 32px; }
   /* hero: one pointer that grows from 1x to 15x and back */
-  .hero { text-align: center; padding: 24px 0 96px; }
+  .hero { text-align: center; padding: 24px 0 24px; }
   .hero h1 { font-size: clamp(48px, 8vw, 104px); white-space: nowrap; margin: 18px 0 14px; }
   .hero .sub { font-size: clamp(22px, 3vw, 34px); font-weight: 800; letter-spacing: -0.02em; margin: 0 0 10px; }
   .hero .joke { max-width: none; font-size: 19px; margin: 0 0 32px; }
@@ -199,10 +200,11 @@
     transform-origin: 0 0; will-change: transform; opacity: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); }
   html.grow-ptr #grow-ptr.on { opacity: 1; }
   #grow-badge { position: fixed; right: 16px; bottom: 16px; z-index: 2147483646; display: none; align-items: center; gap: 10px;
-    background: rgba(13,14,22,0.88); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 7px 8px 7px 16px;
-    font-size: 14px; backdrop-filter: blur(8px); }
+    background: rgba(13,14,22,0.88); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 5px 6px 5px 12px;
+    font-size: 12.5px; backdrop-filter: blur(8px); transition: opacity 0.4s, transform 0.4s; }
+  #grow-badge.idle { opacity: 0; transform: translateY(8px); pointer-events: none; }
   #grow-badge b { font-variant-numeric: tabular-nums; }
-  #grow-badge button { border: 0; border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 700; background: var(--panel-2); color: var(--text); }
+  #grow-badge button { border: 0; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 700; background: var(--panel-2); color: var(--text); }
   html.grow-ok #grow-badge { display: flex; }
 
   /* Google Sheets scene for Yours vs Ours */
@@ -659,7 +661,7 @@
   </defs>
   <use href="#arrow" fill="url(#grow-rainbow)" stroke="#fff"/>
 </svg>
-<div id="grow-badge" role="status"><span>Your pointer: <b id="grow-size">1.0×</b></span><button type="button" id="grow-toggle">Use my normal pointer</button></div>
+<div id="grow-badge" role="status"><span>Pointer <b id="grow-size">1.0×</b></span><button type="button" id="grow-toggle">Normal pointer</button></div>
 <script>
   // Our own arrow follows the mouse and grows from 1x at the top of the page to 10x at the bottom.
   // Only with a real mouse/trackpad, never with reduced motion; the badge turns it off (remembered).
@@ -688,7 +690,7 @@
     function queue() { if (!queued) { queued = true; requestAnimationFrame(draw); } }
     function set(on) {
       root.classList.toggle('grow-ptr', on);
-      toggle.textContent = on ? 'Use my normal pointer' : 'Make it grow';
+      toggle.textContent = on ? 'Normal pointer' : 'Make it grow';
       store(on);
     }
     root.classList.add('grow-ok');
@@ -696,7 +698,17 @@
     document.addEventListener('pointermove', function (e) { x = e.clientX; y = e.clientY; ptr.classList.add('on'); queue(); }, { passive: true });
     document.addEventListener('pointerleave', function () { ptr.classList.remove('on'); });
     document.documentElement.addEventListener('mouseleave', function () { ptr.classList.remove('on'); });
-    window.addEventListener('scroll', queue, { passive: true });
+    var badge = document.getElementById('grow-badge'), idleTimer;
+    function wake() {
+      badge.classList.remove('idle');
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function () { badge.classList.add('idle'); }, 2500);
+    }
+    window.addEventListener('scroll', function () { queue(); wake(); }, { passive: true });
+    document.addEventListener('pointermove', function (e) {
+      if (e.clientX > window.innerWidth - 260 && e.clientY > window.innerHeight - 120) wake();
+    }, { passive: true });
+    wake();
     window.addEventListener('resize', queue);
     toggle.addEventListener('click', function () { set(!root.classList.contains('grow-ptr')); });
     draw();
