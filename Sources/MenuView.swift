@@ -81,11 +81,18 @@ struct MenuView: View {
             if addingPreset {
                 nameField(title: "New preset from the current pointer", text: $newPresetName, button: "Save", action: saveNew)
             } else {
-                Button {
-                    addingPreset = true
-                    typing = true
-                } label: {
-                    Label("New preset", systemImage: "plus").frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                HStack {
+                    Button {
+                        addingPreset = true
+                        typing = true
+                    } label: {
+                        Label("New preset", systemImage: "plus").frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
+                    }
+                    Button { RecipeMenu.show(store: store) } label: {
+                        Label("Recipes", systemImage: "sparkles").frame(minHeight: 28)
+                    }
+                    .fixedSize()
+                    .help("Add a ready-made look: seasonal, pop culture, colors from around the world")
                 }
                 .buttonStyle(.borderless)
                 .padding(.horizontal, Grid.s)

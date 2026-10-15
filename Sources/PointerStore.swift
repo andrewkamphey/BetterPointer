@@ -171,6 +171,20 @@ final class PointerStore: ObservableObject {
         savePresets()
     }
 
+    /// Saves a Cursor Recipe as your own preset and uses it. Adding the same recipe again reuses it.
+    func addRecipe(name: String, size: Double, fill: RGBA, outline: RGBA) {
+        editingPresetID = nil
+        if size > CursorController.standardMaxSize, !extendedSizes { setExtendedSizes(true) }
+        if let existing = customPresets.first(where: { $0.name == name && $0.matches(size: size, fill: fill, outline: outline) }) {
+            apply(existing)
+            return
+        }
+        let preset = Preset(name: name, size: size, fill: fill, outline: outline)
+        customPresets.append(preset)
+        savePresets()
+        apply(preset)
+    }
+
     /// A preset picked from the list. Picking a different one ends any edit in progress,
     /// so "Update" can't save another preset's look into the one being edited.
     func select(_ preset: Preset) {

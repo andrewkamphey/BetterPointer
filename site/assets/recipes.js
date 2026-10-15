@@ -14,6 +14,7 @@
     r.querySelectorAll('.rc-sz b').forEach(function (b) { b.textContent = fmt(s); });
     var input = r.querySelector('.rc-edit input'), hint = r.querySelector('.rc-hint');
     if (input) input.value = s;
+    r.querySelectorAll('.rc-add').forEach(function (a) { a.href = a.href.replace(/size=[\d.]+/, 'size=' + s); }); // adds what you see
     if (hint) hint.textContent = s > 15 ? 'Above 15×: turn on Extra large in the menu.'
       : s === +r.dataset.size ? 'Recipe size. Drag to try others.' : 'Recipe is ' + fmt(+r.dataset.size) + '.';
   }
@@ -32,6 +33,10 @@
     var reset = e.target.closest('.rc-reset');
     if (reset) { var r = reset.closest('[data-size]'); setSize(r, +r.dataset.size); }
   });
+  document.addEventListener('click', function (e) {
+    var add = e.target.closest('.rc-add');
+    if (add && window.gtag) gtag('event', 'add_recipe', { recipe: decodeURIComponent((add.href.match(/name=([^&]*)/) || [])[1] || '') });
+  });
   document.addEventListener('input', function (e) {
     if (e.target.matches('.rc-edit input')) setSize(e.target.closest('[data-size]'), +e.target.value);
   });
@@ -49,6 +54,8 @@
     feature.querySelector('[data-k=fill]').innerHTML = '<i style="background:' + r.fill + '"></i>' + r.fill;
     feature.querySelector('[data-k=outline]').innerHTML = '<i style="background:' + r.outline + '"></i>' + r.outline;
     feature.querySelector('.rc-link').href = '/recipes#' + r.id;
+    feature.querySelector('.rc-add').href = 'wheresmymouse://recipe?name=' + encodeURIComponent(r.name) + '&size=' + r.size +
+      '&fill=' + r.fill.slice(1) + '&outline=' + r.outline.slice(1);
     feature.querySelector('.rc-edit input').setAttribute('aria-label', 'Preview size for ' + r.name);
     setSize(feature, r.size);
   }

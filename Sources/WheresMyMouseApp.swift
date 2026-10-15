@@ -43,11 +43,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// wheresmymouse://recipe links from the website's Cursor Recipes.
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard let store = store else { return }
+        for url in urls { RecipeMenu.handle(url, store: store) { [weak self] in self?.showPopover() } }
+    }
+
     @objc private func togglePopover(_ sender: NSStatusBarButton) {
         if popover.isShown {
             popover.performClose(sender)
             return
         }
+        showPopover()
+    }
+
+    private func showPopover() {
+        guard let sender = statusItem?.button, !popover.isShown else { return }
         store?.refresh()
         fitPopover()
         NSApp.activate(ignoringOtherApps: true) // so text fields take typing
@@ -66,15 +77,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private static let menuBarIcon: NSImage = {
         let height: CGFloat = 16
         let image = NSImage(size: NSSize(width: 12, height: 18), flipped: true) { _ in
-            let unit: [(CGFloat, CGFloat)] = [(0, 0), (0, 0.80), (0.19, 0.62), (0.32, 0.93), (0.45, 0.87), (0.32, 0.57), (0.57, 0.57)]
-            let scale = height / 0.93
-            let path = NSBezierPath()
-            for (i, p) in unit.enumerated() {
-                let point = NSPoint(x: 1.5 + p.0 * scale, y: 1 + p.1 * scale)
-                i == 0 ? path.move(to: point) : path.line(to: point)
-            }
-            path.close()
-            path.lineJoinStyle = .round
+            let path = NSBezierPath.pointerArrow(height: height, origin: NSPoint(x: 1.5, y: 1))
             let rainbow = [(1.0, 0.23, 0.19), (1.0, 0.58, 0.0), (1.0, 0.84, 0.0), (0.2, 0.82, 0.35), (0.0, 0.55, 1.0), (0.69, 0.32, 0.87)]
                 .map { NSColor(srgbRed: $0.0, green: $0.1, blue: $0.2, alpha: 1) }
             NSColor(white: 0.1, alpha: 0.9).setStroke()

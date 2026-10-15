@@ -96,3 +96,13 @@
 .rc-seg[hidden] { display: none; }
 /* list thumbnails are small, so zoom them in (same zoom for every row, so sizes still compare) */
 .rc-pair .rc-ar { height: calc(var(--h) * 1.6); }
+/* "Add to app": a wheresmymouse://recipe link the app confirms before adding */
+.rc-add { justify-self: start; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; padding: 6px 12px; border-radius: 999px;
+  background: var(--text); color: #0d0e16; font-weight: 800; font-size: 13px; white-space: nowrap; }
+.rc-add:hover { text-decoration: none; filter: brightness(0.92); }
+.rc-row .rc-add { margin: 0; padding: 4px 10px; font-size: 12px; }
+.rc-row { grid-template-columns: 128px 1fr 150px 76px 240px auto; }
+.rc-more .rc-row { grid-template-columns: 128px 1fr auto auto; }
+.rc-links { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 4px; }
+.rc-links .rc-add { margin: 0; }
+@media (max-width: 760px) { .rc-row { grid-template-columns: 128px 1fr auto auto; } }

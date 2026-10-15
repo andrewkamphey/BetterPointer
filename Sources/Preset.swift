@@ -25,6 +25,15 @@ struct RGBA: Codable, Hashable {
         self.init(nsColor: ns)
     }
 
+    /// "FF7518" or "#FF7518".
+    init?(hex: String) {
+        let digits = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
+        guard digits.count == 6, let value = UInt32(digits, radix: 16) else { return nil }
+        self.init(red: Double(value >> 16 & 0xFF) / 255, green: Double(value >> 8 & 0xFF) / 255, blue: Double(value & 0xFF) / 255)
+    }
+
+    var hex: String { String(format: "%02X%02X%02X", Int((red * 255).rounded()), Int((green * 255).rounded()), Int((blue * 255).rounded())) }
+
     var nsColor: NSColor { NSColor(srgbRed: red, green: green, blue: blue, alpha: alpha) }
     var cgColor: CGColor { nsColor.cgColor }
     var color: Color { Color(nsColor) }

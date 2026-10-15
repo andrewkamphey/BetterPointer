@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""Builds the Cursor Recipes: site/recipes.html and the home page section in site/index.html
-(between the recipes:start/end markers). Edit RECIPES or MONTHS here, then run:
+"""Builds the Cursor Recipes: site/recipes.html, the home page section in site/index.html
+(between the recipes:start/end markers), and Sources/Recipes.swift for the app's Recipes menu.
+Edit RECIPES or MONTHS here, then run:
     python3 scripts/build_recipes.py
 Styles and behavior live in site/assets/recipes.css and recipes.js."""
 import html, json, re
+from urllib.parse import quote
 from pathlib import Path
 
-SITE = Path(__file__).resolve().parent.parent / "site"
+ROOT = Path(__file__).resolve().parent.parent
+SITE = ROOT / "site"
 CATS = {"seasonal": "Seasonal", "pop": "Pop culture", "world": "Around the world", "classic": "Classics"}
 
 # name, category, size, fill, outline, blurb
@@ -69,16 +72,19 @@ def size_btn(n, s): return f'<button type="button" class="rc-sz" aria-expanded="
 def size_edit(n, s):
     return (f'<div class="rc-edit" hidden><input type="range" min="1" max="30" step="0.5" value="{s}" aria-label="Preview size for {E(n)}">'
             '<button type="button" class="rc-reset">Reset</button><span class="rc-hint">Recipe size. Drag to try others.</span></div>')
+def add_url(n, s, f, o): return f"wheresmymouse://recipe?name={quote(n)}&amp;size={s}&amp;fill={f[1:]}&amp;outline={o[1:]}"
+def add_link(n, s, f, o, label="Add to app"):
+    return f'<a class="rc-add" href="{add_url(n, s, f, o)}" title="Opens Where\'s My Mouse? and asks to add {E(n)} as a preset">＋ {label}</a>'
 def chips(f, o): return f'<span class="rc-chips"><span class="rc-chip"><i style="background:{f}"></i>{f}</span><span class="rc-chip"><i style="background:{o}"></i>{o}</span></span>'
 
 def card(r):
     n, c, s, f, o, d = r
     return (f'<article class="rc-card" id="{slug(n)}" data-cat="{c}" data-size="{s}">{split(f, o, s)}<div class="rc-body">'
-            f'<div class="rc-head"><h3>{E(n)}</h3>{size_btn(n, s)}</div>{size_edit(n, s)}<p>{E(d)}</p>{chips(f, o)}</div></article>')
+            f'<div class="rc-head"><h3>{E(n)}</h3>{size_btn(n, s)}</div>{size_edit(n, s)}<p>{E(d)}</p>{chips(f, o)}{add_link(n, s, f, o)}</div></article>')
 def row(r):
     n, c, s, f, o, d = r
     return (f'<div class="rc-row" data-cat="{c}" data-size="{s}">{pair(f, o, s)}<h4>{E(n)}</h4><span class="rc-cat">{CATS[c]}</span>'
-            f'<span>{size_btn(n, s)}</span>{chips(f, o)}{size_edit(n, s)}</div>')
+            f'<span>{size_btn(n, s)}</span>{chips(f, o)}{add_link(n, s, f, o, "Add")}{size_edit(n, s)}</div>')
 
 def home():
     n, c, s, f, o, d = BY[MONTHS[SHIPPED_MONTH]]
@@ -86,7 +92,7 @@ def home():
     return f'''<section id="recipes">
   <div class="wrap">
     <h2>Cursor Recipes</h2>
-    <p class="lead">Ready-made looks: seasonal, pop culture, and famous colors from around the world. Set the size, fill and outline in the menu and save it as a preset.</p>
+    <p class="lead">Ready-made looks: seasonal, pop culture, and famous colors from around the world. Add one to the app in a click, or pick it from Recipes in the menu.</p>
     <div class="rc-month">
       <article class="rc-card rc-feature" data-size="{s}">{split(f, o, s)}<div class="rc-body">
         <span class="rc-kick">Recipe of the month · October</span>
@@ -98,7 +104,7 @@ def home():
           <div><dt>Fill</dt><dd data-k="fill"><i style="background:{f}"></i>{f}</dd></div>
           <div><dt>Outline</dt><dd data-k="outline"><i style="background:{o}"></i>{o}</dd></div>
         </dl>
-        <a class="rc-link" href="/recipes#{slug(n)}">Open in the gallery →</a>
+        <div class="rc-links">{add_link(n, s, f, o)}<a class="rc-link" href="/recipes#{slug(n)}">Open in the gallery →</a></div>
       </div></article>
       <div class="rc-list rc-more">
         <div class="rc-more-h">More recipes</div>
@@ -157,8 +163,8 @@ def page(index):
   </nav>
   <header class="rc-hero">
     <h1>Cursor Recipes</h1>
-    <p>{len(RECIPES)} ready-made pointer looks. Open Where's My Mouse? in the menu bar, set the size, pick the fill and outline, and save it as a preset. Click any size to try it bigger or smaller.</p>
-    <p class="fine">Colors need macOS 12 or later. Sizes above 15× need Extra large turned on.</p>
+    <p>{len(RECIPES)} ready-made pointer looks. Click “Add to app” to save one as a preset, or pick it from Recipes in the app's menu. Click any size to try it bigger or smaller.</p>
+    <p class="fine">“Add to app” opens Where's My Mouse? 1.4 or later and asks before adding. Colors need macOS 12 or later; sizes above 15× need Extra large turned on.</p>
   </header>
   <main id="rc-page">
     <div class="rc-bar">
@@ -193,4 +199,25 @@ a, b = index.index(start) + len(start), index.index(end)
 index = index[:a] + "\n" + home() + "\n" + index[b:]
 index_path.write_text(index)
 (SITE / "recipes.html").write_text(page(index))
-print(f"{len(RECIPES)} recipes -> site/recipes.html and the home page section")
+
+def swift():
+    rows = "".join(f'        Recipe(name: "{n}", category: "{CATS[c]}", size: {s}, fill: "{f[1:]}", outline: "{o[1:]}"),\n' for n, c, s, f, o, d in RECIPES)
+    cats = ", ".join(f'"{v}"' for v in CATS.values())
+    return f"""// Generated by scripts/build_recipes.py from the Cursor Recipes at wheresmymouse.com/recipes.
+// Edit the list there and re-run the script; don't edit this file by hand.
+
+struct Recipe {{
+    let name: String
+    let category: String
+    let size: Double
+    let fill: String
+    let outline: String
+
+    static let categories = [{cats}]
+    static let all: [Recipe] = [
+{rows}    ]
+}}
+"""
+
+(ROOT / "Sources" / "Recipes.swift").write_text(swift())
+print(f"{len(RECIPES)} recipes -> site/recipes.html, the home page section, and Sources/Recipes.swift")
