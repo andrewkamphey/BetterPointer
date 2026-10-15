@@ -17,7 +17,7 @@
 .rc-ar { position: absolute; left: 50%; top: 50%; height: var(--h); width: auto; transform: translate(-42%, -50%); overflow: visible;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3)); transition: height 0.12s ease-out; }
 
-/* split / light / dark switch: a full-width bar under the preview */
+/* split / light / dark switch: a full-width bar on top of the preview */
 .rc-mode { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid var(--line); }
 .rc-mode button { height: 34px; border: 0; border-radius: 10px; background: none; color: var(--muted); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
 .rc-mode button:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }

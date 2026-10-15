@@ -58,12 +58,12 @@ PENCIL = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11.5 1.5l3 3L5 1
 
 def arrow(f, o, s): return f'<svg class="rc-ar" viewBox="0 0 62 100" style="--h:{h(s):.1f}%" aria-hidden="true"><use href="#arrow" fill="{f}" stroke="{o}"/></svg>'
 def split(f, o, s):
-    return (f'<div class="rc-shot"><div class="rc-pv" data-mode="split"><div class="rc-half l"></div><div class="rc-half d"></div>{arrow(f, o, s)}'
-            '<span class="rc-lbl l">Light</span><span class="rc-lbl d">Dark</span></div>'
-            '<div class="rc-mode" role="group" aria-label="Background">'
+    return ('<div class="rc-shot"><div class="rc-mode" role="group" aria-label="Background">'
             '<button type="button" data-mode="split" aria-pressed="true">◐ Split</button>'
             '<button type="button" data-mode="light" aria-pressed="false">☀ Light</button>'
-            '<button type="button" data-mode="dark" aria-pressed="false">☾ Dark</button></div></div>')
+            '<button type="button" data-mode="dark" aria-pressed="false">☾ Dark</button></div>'
+            f'<div class="rc-pv" data-mode="split"><div class="rc-half l"></div><div class="rc-half d"></div>{arrow(f, o, s)}'
+            '<span class="rc-lbl l">Light</span><span class="rc-lbl d">Dark</span></div></div>')
 def pair(f, o, s): return f'<div class="rc-pair"><div class="rc-pv solid-l">{arrow(f, o, s)}</div><div class="rc-pv solid-d">{arrow(f, o, s)}</div></div>'
 def size_btn(n, s): return f'<button type="button" class="rc-sz" aria-expanded="false" aria-label="Try {E(n)} at other sizes"><b>{s}×</b>{PENCIL}</button>'
 def size_edit(n, s):
