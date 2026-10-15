@@ -281,6 +281,19 @@
   .why li::before { content: ""; position: absolute; left: 0; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--rainbow); }
   .why b { color: var(--text); }
 
+  #app-rules .rule { top: auto; right: auto; left: 2.5%; bottom: 4%; }
+
+  /* full-screen Claude mock */
+  .cl { position: absolute; inset: 0; background: #faf9f5; font-size: 1.3cqw; color: #3d3929; }
+  .cl-side { position: absolute; left: 0; top: 0; bottom: 0; width: 20%; background: #f0eee6; padding: 2.4% 1.6%; display: flex; flex-direction: column; gap: 2.2%; }
+  .cl-side i { display: block; height: 1.4%; min-height: 6px; border-radius: 4px; background: #e2ded1; }
+  .cl-logo { font-weight: 800; color: #c96442; margin-bottom: 6%; }
+  .cl-main { position: absolute; left: 20%; right: 0; top: 0; bottom: 0; padding: 6% 14%; display: flex; flex-direction: column; gap: 2.6%; }
+  .cl-me { align-self: flex-end; background: #f0eee6; border-radius: 1em; padding: 0.7em 1.1em; font-weight: 600; margin-bottom: 3%; }
+  .cl-line { display: block; height: 2%; min-height: 7px; border-radius: 4px; background: #e8e5da; }
+  .cl-box { position: absolute; left: 12%; right: 12%; bottom: 7%; border: 1px solid #ddd8c8; border-radius: 1.2em; background: #fff; padding: 1.2em 1.4em; color: #9a9585;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.05); }
+
   /* use cases: a before/after scene, then the problem and the fix */
   .uses-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 30px; }
   .use { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
@@ -514,17 +527,19 @@
       <li><b>Switch contexts faster.</b> Blue means writing, green means numbers; your brain knows where you are before you read a thing.</li>
       <li><b>Match the app.</b> Or go the other way and give each app a pointer in its own brand colors.</li>
     </ul>
-    <div class="desk" role="img" aria-label="With Claude in front the pointer is big and blue; with Google Sheets in front it is big and green">
-      <div class="menubar"><span>●</span><span>File</span><span>Edit</span><span>View</span><span class="sp"></span><img src="assets/favicon.png" alt=""><span>Tue 10:41</span></div>
+    <div class="desk sheet" role="img" aria-label="With Claude in front the pointer is big and blue; with Google Sheets in front it is big and green">
       <div class="cycle2">
         <div class="layer">
-          <div class="win" style="left:40%;top:22%;width:52%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Google Sheets</span></div><div class="sheetui"><span class="sel"></span></div></div><div class="win" style="left:7%;top:12%;width:50%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Claude</span></div><div class="chatui"><b class="me" style="top:10%;width:38%"></b><b style="top:22%;width:62%"></b><b style="top:31%;width:55%"></b><b style="top:40%;width:44%"></b><span class="box"></span></div></div>
-          <svg class="ptr big" viewBox="0 0 62 100" style="left:30%;top:34%" aria-hidden="true"><use href="#arrow" fill="#0a84ff" stroke="#fff"/></svg>
+          <div class="cl"><div class="cl-side"><b class="cl-logo">✳︎ Claude</b><i style="width:70%"></i><i style="width:55%"></i><i style="width:62%"></i><i style="width:48%"></i><i style="width:58%"></i></div>
+            <div class="cl-main"><span class="cl-me">Can you summarize this doc?</span>
+              <span class="cl-line" style="width:72%"></span><span class="cl-line" style="width:64%"></span><span class="cl-line" style="width:70%"></span><span class="cl-line" style="width:40%"></span>
+              <span class="cl-box">Reply to Claude…</span></div></div>
+          <svg class="ptr big" viewBox="0 0 62 100" style="left:46%;top:30%" aria-hidden="true"><use href="#arrow" fill="#0a84ff" stroke="#fff"/></svg>
           <span class="rule"><span class="dot" style="background:#0a84ff"></span>Claude: Blue</span>
         </div>
         <div class="layer">
-          <div class="win" style="left:7%;top:12%;width:50%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Claude</span></div><div class="chatui"><b class="me" style="top:10%;width:38%"></b><b style="top:22%;width:62%"></b><b style="top:31%;width:55%"></b><b style="top:40%;width:44%"></b><span class="box"></span></div></div><div class="win" style="left:40%;top:22%;width:52%;height:66%"><div class="tb"><i></i><i></i><i></i><span>Google Sheets</span></div><div class="sheetui"><span class="sel"></span></div></div>
-          <svg class="ptr big" viewBox="0 0 62 100" style="left:62%;top:40%" aria-hidden="true"><use href="#arrow" fill="#34c759" stroke="#0d0e16"/></svg>
+          <div class="gs"><div class="gs-top"><span class="gs-logo"></span><span class="gs-title"><b>Q4 Budget</b><span>File Edit View Insert Format Data Tools</span></span><span class="gs-share">Share</span></div><div class="gs-tools"></div><div class="gs-fx">fx</div><div class="gs-grid"><div class="gs-cols"><span>A</span><span>B</span><span>C</span><span>D</span><span>E</span><span>F</span><span>G</span><span>H</span><span>I</span><span>J</span></div><div class="gs-rows"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span><span>11</span><span>12</span><span>13</span><span>14</span><span>15</span><span>16</span><span>17</span></div></div><span class="gs-v h" style="left:4.0%;top:25.8%">Q4 Budget</span><span class="gs-v h" style="left:13.6%;top:25.8%">Oct</span><span class="gs-v h" style="left:23.2%;top:25.8%">Nov</span><span class="gs-v h" style="left:32.8%;top:25.8%">Dec</span><span class="gs-v h" style="left:42.4%;top:25.8%">Total</span><span class="gs-v " style="left:4.0%;top:30.2%">Ads</span><span class="gs-v " style="left:13.6%;top:30.2%">4,200</span><span class="gs-v " style="left:23.2%;top:30.2%">3,900</span><span class="gs-v " style="left:32.8%;top:30.2%">5,100</span><span class="gs-v " style="left:42.4%;top:30.2%">13,200</span><span class="gs-v " style="left:4.0%;top:34.7%">Tools</span><span class="gs-v " style="left:13.6%;top:34.7%">1,150</span><span class="gs-v " style="left:23.2%;top:34.7%">1,150</span><span class="gs-v " style="left:32.8%;top:34.7%">1,300</span><span class="gs-v " style="left:42.4%;top:34.7%">3,600</span><span class="gs-v " style="left:4.0%;top:39.1%">Travel</span><span class="gs-v " style="left:13.6%;top:39.1%">800</span><span class="gs-v " style="left:23.2%;top:39.1%">2,400</span><span class="gs-v " style="left:32.8%;top:39.1%">600</span><span class="gs-v " style="left:42.4%;top:39.1%">3,800</span><span class="gs-v " style="left:4.0%;top:43.5%">Payroll</span><span class="gs-v " style="left:13.6%;top:43.5%">18,000</span><span class="gs-v " style="left:23.2%;top:43.5%">18,000</span><span class="gs-v " style="left:32.8%;top:43.5%">19,500</span><span class="gs-v " style="left:42.4%;top:43.5%">55,500</span><span class="gs-sel" style="left:42.4%;top:46.6%;width:9.6%;height:4.44%"></span></div>
+          <svg class="ptr big" viewBox="0 0 62 100" style="left:52%;top:34%" aria-hidden="true"><use href="#arrow" fill="#34c759" stroke="#0d0e16"/></svg>
           <span class="rule"><span class="dot" style="background:#34c759"></span>Sheets: Green</span>
         </div>
       </div>
