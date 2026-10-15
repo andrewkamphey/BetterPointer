@@ -27,7 +27,7 @@ struct RGBA: Codable, Hashable {
 
     var nsColor: NSColor { NSColor(srgbRed: red, green: green, blue: blue, alpha: alpha) }
     var cgColor: CGColor { nsColor.cgColor }
-    var color: Color { Color(nsColor: nsColor) }
+    var color: Color { Color(nsColor) }
 
     /// True for colors where white text or marks read better than black.
     var isDark: Bool { 0.299 * red + 0.587 * green + 0.114 * blue < 0.55 }

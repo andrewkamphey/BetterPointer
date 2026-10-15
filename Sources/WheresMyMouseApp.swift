@@ -1,17 +1,64 @@
+import AppKit
+import Combine
 import SwiftUI
 
+/// Menu bar app entry point. Built on NSStatusItem + NSPopover (rather than SwiftUI's
+/// MenuBarExtra, which needs macOS 13) so it runs on macOS 11 and later.
 @main
-struct WheresMyMouseApp: App {
-    @StateObject private var store = PointerStore()
+enum WheresMyMouseMain {
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        app.setActivationPolicy(.accessory)
+        withExtendedLifetime(delegate) { app.run() }
+    }
+}
 
-    var body: some Scene {
-        MenuBarExtra {
-            MenuView()
-                .environmentObject(store)
-        } label: {
-            Image(nsImage: Self.menuBarIcon)
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var statusItem: NSStatusItem?
+    private let popover = NSPopover()
+    private var store: PointerStore?
+    private var hosting: NSHostingController<AnyView>?
+    private var resize: AnyCancellable?
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        let store = PointerStore()
+        let hosting = NSHostingController(rootView: AnyView(MenuView().environmentObject(store)))
+        popover.contentViewController = hosting
+        popover.behavior = .transient
+        self.store = store
+        self.hosting = hosting
+
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        item.button?.image = Self.menuBarIcon
+        item.button?.toolTip = "Where's My Mouse?"
+        item.button?.target = self
+        item.button?.action = #selector(togglePopover(_:))
+        statusItem = item
+
+        // Keep the popover sized to its SwiftUI content as sections grow or shrink.
+        resize = store.objectWillChange.sink { [weak self] _ in
+            DispatchQueue.main.async { self?.fitPopover() }
         }
-        .menuBarExtraStyle(.window)
+    }
+
+    @objc private func togglePopover(_ sender: NSStatusBarButton) {
+        if popover.isShown {
+            popover.performClose(sender)
+            return
+        }
+        store?.refresh()
+        fitPopover()
+        NSApp.activate(ignoringOtherApps: true) // so text fields take typing
+        popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
+        popover.contentViewController?.view.window?.makeKey()
+    }
+
+    private func fitPopover() {
+        guard let view = hosting?.view else { return }
+        let size = view.fittingSize
+        if size.width > 0, size.height > 0, size != popover.contentSize { popover.contentSize = size }
     }
 
     /// The app icon's rainbow pointer. Full color on purpose: a monochrome arrow is

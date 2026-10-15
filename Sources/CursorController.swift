@@ -83,7 +83,14 @@ enum CursorController {
     /// The private setters only stage the values in preferences. Like System
     /// Settings, we then flush them and re-register the system pointer images,
     /// which redraws them in the new colors right away.
+    /// macOS added pointer fill and outline colors in Monterey (12).
+    static var colorsSupported: Bool {
+        if #available(macOS 12, *) { return setFill != nil && setOutline != nil }
+        return false
+    }
+
     static func setColors(fill: RGBA, outline: RGBA) {
+        guard colorsSupported else { return }
         setOutline?(outline.cgColor)
         setFill?(fill.cgColor)
         CFPreferencesAppSynchronize(domain)

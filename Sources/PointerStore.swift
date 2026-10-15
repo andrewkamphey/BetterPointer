@@ -2,15 +2,16 @@ import AppKit
 import ServiceManagement
 
 /// Current pointer settings, saved presets, and the actions the menu performs.
-@MainActor
 final class PointerStore: ObservableObject {
     @Published private(set) var size: Double
     @Published private(set) var fill: RGBA
     @Published private(set) var outline: RGBA
     @Published private(set) var customPresets: [Preset] = []
     @Published private(set) var hasFullDiskAccess = CursorController.hasFullDiskAccess
-    @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @Published private(set) var launchAtLogin = LaunchAtLogin.isEnabled
     @Published private(set) var shakeToLocate = CursorController.shakeToLocate
+    /// Pointer colors need macOS 12 or later; size works everywhere.
+    let colorsSupported = CursorController.colorsSupported
     /// Our own shake-to-find: briefly grows the pointer at any size.
     @Published private(set) var superShakeEnabled = UserDefaults.standard.object(forKey: superShakeKey) as? Bool ?? true
     private var superShake: SuperShake?
@@ -93,7 +94,7 @@ final class PointerStore: ObservableObject {
         fill = CursorController.fill ?? fill
         outline = CursorController.outline ?? outline
         hasFullDiskAccess = CursorController.hasFullDiskAccess
-        launchAtLogin = SMAppService.mainApp.status == .enabled
+        launchAtLogin = LaunchAtLogin.isEnabled
         shakeToLocate = CursorController.shakeToLocate
     }
 
@@ -374,7 +375,7 @@ final class PointerStore: ObservableObject {
         for name in [NSWorkspace.didLaunchApplicationNotification, NSWorkspace.didTerminateApplicationNotification,
                      NSWorkspace.didActivateApplicationNotification] {
             workspaceObservers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
-                Task { @MainActor [weak self] in self?.evaluateAppRules() }
+                self?.evaluateAppRules()
             })
         }
         evaluateAppRules() // a rule app may already be open
@@ -427,12 +428,8 @@ final class PointerStore: ObservableObject {
     // MARK: Launch at login
 
     func setLaunchAtLogin(_ enabled: Bool) {
-        do {
-            if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
-        } catch {
-            NSLog("WheresMyMouse: launch at login change failed: \(error)")
-        }
-        launchAtLogin = SMAppService.mainApp.status == .enabled
+        LaunchAtLogin.set(enabled)
+        launchAtLogin = LaunchAtLogin.isEnabled
     }
 }
 

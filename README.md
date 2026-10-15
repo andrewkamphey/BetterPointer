@@ -8,7 +8,7 @@
 
 A native macOS menu bar app for managing pointer size and color, for when you (or everyone watching your screen) can't find the mouse. Make the pointer bigger (up to 15×), change its fill and outline colors, and switch between presets in one click, live, without opening System Settings.
 
-![macOS 13+](https://img.shields.io/badge/macOS-13%2B-blue)
+![macOS 11+](https://img.shields.io/badge/macOS-11%2B-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.10-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -46,7 +46,8 @@ Presets make the switching fast: keep "Default" for everyday work, and flip to y
 
 ### Requirements
 
-- macOS 13.0 (Ventura) or later, Apple Silicon or Intel
+- macOS 11 (Big Sur) or later, Apple Silicon or Intel
+- Pointer **colors** need macOS 12 (Monterey) or later, because that's when macOS added them. On macOS 11, size (up to 30×), Super shake and app rules all work.
 
 ### Download
 

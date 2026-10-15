@@ -33,7 +33,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" build
 
 compile() {
-    swiftc -O -parse-as-library -sdk "$SDK" -target "$1-apple-macos13.0" Sources/*.swift -o "$2"
+    swiftc -O -parse-as-library -sdk "$SDK" -target "$1-apple-macos11.0" Sources/*.swift -o "$2"
 }
 
 echo "Compiling ($ARCH)…"

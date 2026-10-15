@@ -15,13 +15,13 @@ struct MenuView: View {
     @State private var newPresetName = ""
     @State private var editName = ""
     @State private var addingPreset = false
-    @FocusState private var typing: Bool
+    @State private var typing = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header.padding(.bottom, Grid.section)
 
-            if !store.hasFullDiskAccess { fullDiskAccessBanner.padding(.bottom, Grid.section) }
+            if store.colorsSupported && !store.hasFullDiskAccess { fullDiskAccessBanner.padding(.bottom, Grid.section) }
             if let deleted = store.recentlyDeleted { undoBanner(deleted.preset).padding(.bottom, Grid.section) }
 
             // Flat sections split by hairlines: nothing boxed inside a box.
@@ -45,11 +45,11 @@ struct MenuView: View {
             HStack {
                 Text("Where's My Mouse?").font(.headline)
                 Spacer()
-                Text(String(format: "%.1f×", store.size)).font(.headline).monospacedDigit().foregroundStyle(.secondary)
+                Text(String(format: "%.1f×", store.size)).font(Font.headline.monospacedDigit()).foregroundColor(.secondary)
             }
             Label(store.statusText, systemImage: "cursorarrow.motionlines")
                 .font(.callout)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
                 .accessibilityLabel("Now using \(store.statusText)")
         }
     }
@@ -69,7 +69,7 @@ struct MenuView: View {
                     .onChange(of: editing.id) { _ in editName = editing.name }
             } else if let modified = store.modifiedSelectedPreset {
                 HStack {
-                    Text("Changed from “\(modified.name)”").font(.callout).foregroundStyle(.secondary)
+                    Text("Changed from “\(modified.name)”").font(.callout).foregroundColor(.secondary)
                     Spacer()
                     Button("Update") { store.updateSelectedPreset() }
                         .controlSize(.large)
@@ -95,13 +95,11 @@ struct MenuView: View {
 
     private func nameField(title: String, text: Binding<String>, button: String, action: @escaping () -> Void) -> some View {
         VStack(alignment: .leading, spacing: Grid.xs) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(title).font(.caption).foregroundColor(.secondary)
             HStack(spacing: Grid.s) {
-                TextField("Name", text: text)
+                TextField("Name", text: text, onEditingChanged: { typing = $0 }, onCommit: action)
                     .textFieldStyle(.roundedBorder)
                     .controlSize(.large)
-                    .focused($typing)
-                    .onSubmit(action)
                 Button(button, action: action)
                     .controlSize(.large)
                     .disabled(trimmed(text.wrappedValue).isEmpty)
@@ -122,8 +120,17 @@ struct MenuView: View {
     private var colorSection: some View {
         VStack(alignment: .leading, spacing: Grid.s) {
             sectionTitle("Color")
-            ColorRow(title: "Fill", color: store.fill, target: .fill, onPick: store.setFill)
-            ColorRow(title: "Outline", color: store.outline, target: .outline, onPick: store.setOutline)
+            if store.colorsSupported {
+                ColorRow(title: "Fill", color: store.fill, target: .fill, onPick: store.setFill)
+                ColorRow(title: "Outline", color: store.outline, target: .outline, onPick: store.setOutline)
+            } else {
+                // macOS 11 has no pointer colors; everything else works.
+                Label("Pointer colors need macOS 12 or later. Size, Super shake and app rules all work on your Mac.",
+                      systemImage: "info.circle")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 
@@ -157,7 +164,7 @@ struct MenuView: View {
             if store.appRules.isEmpty {
                 Text("Add apps to a preset with its ＋ button. While that app is in use, your pointer switches to that preset.")
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundColor(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
                 Picker("Follow", selection: Binding(get: { store.ruleTrigger }, set: { store.setRuleTrigger($0) })) {
@@ -190,10 +197,10 @@ struct MenuView: View {
         VStack(alignment: .leading, spacing: Grid.s) {
             Label("Colors need Full Disk Access", systemImage: "exclamationmark.triangle.fill")
                 .font(.callout.weight(.semibold))
-                .foregroundStyle(.orange)
+                .foregroundColor(.orange)
             Text("Size works without it. Add Where's My Mouse under Privacy & Security → Full Disk Access.")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: Grid.s) {
                 Button("Open Settings") { CursorController.openFullDiskAccessSettings() }
@@ -201,7 +208,7 @@ struct MenuView: View {
             }
         }
         .padding(Grid.s + Grid.xs)
-        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.orange.opacity(0.12)))
     }
 
     private func undoBanner(_ preset: Preset) -> some View {
@@ -214,7 +221,7 @@ struct MenuView: View {
         }
         .padding(.horizontal, Grid.s + Grid.xs)
         .padding(.vertical, Grid.s)
-        .background(Color.primary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.08)))
     }
 
     // MARK: Keyboard
@@ -253,7 +260,7 @@ struct MenuView: View {
     }
 
     private func sectionTitle(_ title: String) -> some View {
-        Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.secondary)
+        Text(title).font(.subheadline.weight(.semibold)).foregroundColor(.secondary)
     }
 
     private func trimmed(_ s: String) -> String { s.trimmingCharacters(in: .whitespaces) }
@@ -315,15 +322,14 @@ private struct PresetRow: View {
             }
 
             Text(sizeText)
-                .font(.caption.weight(.bold))
-                .monospacedDigit()
+                .font(Font.caption.weight(.bold).monospacedDigit())
                 .padding(.horizontal, 8)
                 .padding(.vertical, 3)
-                .background(isActive ? Color.accentColor : Color.primary.opacity(0.07), in: Capsule())
-                .foregroundStyle(isActive ? Color.white : Color.secondary)
+                .background(Capsule().fill(isActive ? Color.accentColor : Color.primary.opacity(0.07)))
+                .foregroundColor(isActive ? Color.white : Color.secondary)
         }
         .padding(.horizontal, Grid.s + 2)
-        .background(rowBackground, in: RoundedRectangle(cornerRadius: 10))
+        .background(RoundedRectangle(cornerRadius: 10).fill(rowBackground))
         // The selected preset is the one bordered thing in the menu.
         .overlay(RoundedRectangle(cornerRadius: 10).strokeBorder(Color.accentColor, lineWidth: 2).opacity(isActive || isEditing ? 1 : 0))
         .onHover { hovering = $0 }
@@ -335,7 +341,7 @@ private struct PresetRow: View {
             }
             if !preset.isBuiltIn {
                 Button("Rename or update") { store.beginEditing(preset) }
-                Button("Delete", role: .destructive) { store.delete(preset) }
+                Button("Delete") { store.delete(preset) }
             }
         }
         .help(number <= 9 ? "⌘\(number)" : "")
@@ -373,7 +379,7 @@ private struct SwitchRow: View {
         HStack(spacing: Grid.s) {
             VStack(alignment: .leading, spacing: 1) {
                 Text(title)
-                Text(detail).font(.caption).foregroundStyle(.secondary)
+                Text(detail).font(.caption).foregroundColor(.secondary)
             }
             Spacer()
             Toggle(title, isOn: $isOn).labelsHidden().toggleStyle(.switch).controlSize(.small)
@@ -403,14 +409,14 @@ private struct RuleRow: View {
             .frame(width: 20, height: 20)
             Text(rule.appName).lineLimit(1)
             Spacer(minLength: Grid.xs)
-            Image(systemName: "arrow.right").font(.caption).foregroundStyle(.tertiary)
+            Image(systemName: "arrow.right").font(.caption).foregroundColor(Color.secondary.opacity(0.6))
             HStack(spacing: 6) {
                 if let preset { PointerSwatch(fill: preset.fill, outline: preset.outline).scaleEffect(0.7).frame(width: 16, height: 18) }
                 Text(preset?.name ?? "Default").fontWeight(.semibold).lineLimit(1)
             }
             .frame(width: 110, alignment: .leading)
             Button { store.removeAppRule(rule) } label: {
-                Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary).frame(width: 20, height: 20).contentShape(Rectangle())
+                Image(systemName: "xmark.circle.fill").foregroundColor(.secondary).frame(width: 20, height: 20).contentShape(Rectangle())
             }
             .buttonStyle(.borderless)
             .help("Take \(rule.appName) out of its preset")
@@ -419,12 +425,11 @@ private struct RuleRow: View {
         }
         .frame(minHeight: 36)
         .padding(.horizontal, Grid.xs + 2)
-        .background(store.highlightedRuleID == rule.id ? Color.accentColor.opacity(0.18) : hovering ? Color.primary.opacity(0.06) : .clear,
-                    in: RoundedRectangle(cornerRadius: 8))
+        .background(RoundedRectangle(cornerRadius: 8).fill(store.highlightedRuleID == rule.id ? Color.accentColor.opacity(0.18) : hovering ? Color.primary.opacity(0.06) : .clear))
         .opacity(store.appRulesEnabled ? 1 : 0.5)
         .onHover { hovering = $0 }
         .contextMenu {
-            Button("Remove “\(rule.appName)”", role: .destructive) { store.removeAppRule(rule) }
+            Button("Remove “\(rule.appName)”") { store.removeAppRule(rule) }
         }
     }
 }
@@ -447,7 +452,7 @@ private struct SizeSlider: View {
             Slider(value: $size, in: range) { editing in
                 if !editing, let mark = marks.first(where: { abs($0 - size) < 0.12 }), mark != size { size = mark }
             }
-            .tint(isDrawn ? .purple : .accentColor)
+            .accentColor(isDrawn ? .purple : .accentColor)
             .accessibilityLabel("Pointer size")
             .accessibilityValue(String(format: "%.1f times", size))
             GeometryReader { geo in
@@ -462,7 +467,7 @@ private struct SizeSlider: View {
                                 .opacity(showsLabel(mark) || current ? 1 : 0)
                         }
                         .frame(minWidth: 22, minHeight: 24)
-                        .foregroundStyle(current ? Color.accentColor : .secondary)
+                        .foregroundColor(current ? Color.accentColor : .secondary)
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -475,9 +480,9 @@ private struct SizeSlider: View {
             if maxSize > drawnFrom {
                 zones
                 if isDrawn {
-                    Label("Drawn pointer: arrow only, may trail slightly.", systemImage: "paintbrush.pointed")
+                    Label("Drawn pointer: arrow only, may trail slightly.", systemImage: "paintbrush")
                         .font(.caption)
-                        .foregroundStyle(.purple)
+                        .foregroundColor(.purple)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
@@ -509,9 +514,9 @@ private struct SizeSlider: View {
             .font(.caption2.weight(.semibold))
             .lineLimit(1)
             .minimumScaleFactor(0.8)
-            .foregroundStyle(active ? .white : color)
+            .foregroundColor(active ? .white : color)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(color.opacity(active ? 0.85 : 0.15), in: RoundedRectangle(cornerRadius: 5))
+            .background(RoundedRectangle(cornerRadius: 5).fill(color.opacity(active ? 0.85 : 0.15)))
     }
 }
 
@@ -541,7 +546,7 @@ private struct ColorRow: View {
                         .overlay(Circle().strokeBorder(Color.accentColor, lineWidth: 2).padding(-3).opacity(selected ? 1 : 0))
                         .overlay(Image(systemName: "checkmark")
                             .font(.system(size: 10, weight: .heavy))
-                            .foregroundStyle(swatch.color.isDark ? .white : .black)
+                            .foregroundColor(swatch.color.isDark ? .white : .black)
                             .opacity(selected ? 1 : 0))
                         .frame(width: Grid.swatch, height: Grid.swatch)
                         .contentShape(Circle())
@@ -557,7 +562,7 @@ private struct ColorRow: View {
                     .fill(color.color)
                     .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Color.primary.opacity(0.3)))
                     .overlay(Image(systemName: "eyedropper").font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(color.isDark ? .white : .black).opacity(0.7))
+                        .foregroundColor(color.isDark ? .white : .black).opacity(0.7))
                     .frame(width: 30, height: Grid.swatch)
             }
             .buttonStyle(.plain)
@@ -574,8 +579,8 @@ private struct PointerSwatch: View {
 
     var body: some View {
         ZStack {
-            Image(systemName: "cursorarrow").font(.system(size: 19, weight: .black)).foregroundStyle(outline.color)
-            Image(systemName: "cursorarrow").font(.system(size: 14, weight: .regular)).foregroundStyle(fill.color)
+            Image(systemName: "cursorarrow").font(.system(size: 19, weight: .black)).foregroundColor(outline.color)
+            Image(systemName: "cursorarrow").font(.system(size: 14, weight: .regular)).foregroundColor(fill.color)
         }
         .frame(width: 24, height: 24)
         .accessibilityHidden(true)

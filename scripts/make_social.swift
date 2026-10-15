@@ -46,7 +46,7 @@ text("For screen recordings, demos & video calls.", at: CGPoint(x: 76, y: 215), 
      color: srgb(0.45, 0.65, 1))
 text("Up to 30× · any color · presets per app", at: CGPoint(x: 76, y: 170), size: 23, weight: .regular,
      color: srgb(0.65, 0.65, 0.75))
-text("Free & open source for macOS 13+", at: CGPoint(x: 76, y: 90), size: 22, weight: .medium, color: srgb(0.5, 0.5, 0.6))
+text("Free & open source for macOS 11+", at: CGPoint(x: 76, y: 90), size: 22, weight: .medium, color: srgb(0.5, 0.5, 0.6))
 
 // The real menu, rendered by scripts/snapshot-menu.sh
 let menu = NSImage(contentsOfFile: "docs/menu-dark.png")!
