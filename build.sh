@@ -57,6 +57,20 @@ if [[ "${1:-}" == "--dmg" ]]; then
     mkdir -p "$STAGING"
     cp -R "$APP" "$STAGING/"
     ln -s /Applications "$STAGING/Applications"
+    # Not notarized yet, so macOS blocks the first open; say how to get past it.
+    cat > "$STAGING/If macOS blocks it.txt" <<'TXT'
+macOS says it can't verify "Where's My Mouse?" because the app isn't notarized by Apple yet.
+The code is open source: https://github.com/andrewkamphey/WheresMyMouse
+
+One-time fix:
+1. Drag Where's My Mouse? to Applications and open it.
+2. When macOS warns you, click Done.
+3. Open System Settings > Privacy & Security, scroll down, and click Open Anyway.
+   Then open the app again.
+
+Or run this once in Terminal:
+xattr -dr com.apple.quarantine "/Applications/Where's My Mouse.app"
+TXT
     hdiutil create -volname "$APP_NAME" -srcfolder "$STAGING" -ov -format UDZO "dist/$EXECUTABLE.dmg" >/dev/null
     rm -rf "$STAGING"
     echo "Built dist/$EXECUTABLE.dmg"

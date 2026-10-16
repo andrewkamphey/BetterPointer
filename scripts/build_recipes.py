@@ -182,6 +182,7 @@ def page(index):
 </div>
 {footer}
 <script src="assets/recipes.js"></script>
+<script src="assets/first-launch.js"></script>
 <script>
   document.addEventListener('click', function (e) {{
     var a = e.target.closest && e.target.closest('a[href*="/download"]');
