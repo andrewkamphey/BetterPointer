@@ -441,7 +441,6 @@
         Download for Mac
       </a>
       <p class="fine">Free &amp; open source · macOS 11+ · Apple Silicon &amp; Intel</p>
-      <p class="fine">First launch: macOS will ask you to confirm. <a href="#first-launch" data-first-launch>Here's the one-time fix</a>.</p>
     </header>
   </div>
 </div>
@@ -629,7 +628,8 @@
   <div class="wrap">
     <h2>What's new</h2>
     <div class="releases">
-      <div class="rel"><div class="v">v1.4.0<em>current</em></div><p>Cursor Recipes: 32 ready-made looks (seasonal, pop culture, colors from around the world) in a new Recipes menu, plus “Add to app” buttons on <a href="/recipes">wheresmymouse.com/recipes</a>.</p></div>
+      <div class="rel"><div class="v">v1.4.1<em>current</em></div><p>Signed and notarized by Apple: no more “Apple could not verify” warning on first launch. After updating, turn Full Disk Access on again once (for colors).</p></div>
+      <div class="rel"><div class="v">v1.4.0</div><p>Cursor Recipes: 32 ready-made looks (seasonal, pop culture, colors from around the world) in a new Recipes menu, plus “Add to app” buttons on <a href="/recipes">wheresmymouse.com/recipes</a>.</p></div>
       <div class="rel"><div class="v">v1.3.0</div><p>Now runs on macOS 11 Big Sur and later. Size, Super shake and app rules work everywhere; pointer colors need macOS 12 or later.</p></div>
       <div class="rel"><div class="v">v1.2.1</div><p>A cleaner menu: flat sections, a clearly bordered selection, chunkier rows, switches with short explanations, and app rules in tidy columns.</p></div>
       <div class="rel"><div class="v">v1.2.0</div><p>Redesigned menu (bigger targets, status line, undo, ⌘1–9), Super shake, add apps right from a preset, clearer System vs Drawn sizes, and a switch for macOS's own shake to locate.</p></div>
@@ -643,7 +643,7 @@
   <div class="wrap">
     <h2>Questions, answered</h2>
     <details><summary>Is it really free?</summary><p>Yes. Free and open source under the MIT license. The code is on <a href="https://github.com/andrewkamphey/WheresMyMouse">GitHub</a>.</p></details>
-    <details id="first-launch"><summary>Why does macOS say it can't verify the app?</summary><p>The app isn't notarized by Apple yet. After the first launch attempt, open <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>. Or run <code>xattr -dr com.apple.quarantine "/Applications/Where's My Mouse.app"</code> once.</p></details>
+    <details id="first-launch"><summary>Is it safe? Will macOS warn me?</summary><p>From v1.4.1 the app is signed with an Apple Developer ID and notarized by Apple, so it opens like any other Mac app. The code is <a href="https://github.com/andrewkamphey/WheresMyMouse">open source</a>. On older versions, macOS said it couldn't verify the app; update to the latest to fix that.</p></details>
     <details><summary>Does it work on older Macs?</summary><p>Yes, on macOS 11 (Big Sur) and later, on Apple Silicon and Intel. Size works everywhere, up to 30×, along with Super shake and app rules. Pointer colors need macOS 12 (Monterey) or later, because that's when macOS added them; on Big Sur the app simply hides the color options.</p></details>
     <details><summary>Why does it need Full Disk Access?</summary><p>Only for colors. macOS keeps pointer colors in its accessibility settings and only lets apps with Full Disk Access change them. Size works without it. The app reads nothing else.</p></details>
     <details><summary>Does the big pointer show up in screen recordings?</summary><p>Yes. We tested it in OBS. Plain screenshots are the exception: macOS draws the pointer at normal size in still screenshots.</p></details>
@@ -805,6 +805,5 @@
   });
 </script>
 <script src="assets/recipes.js"></script>
-<script src="assets/first-launch.js"></script>
 </body>
 </html>

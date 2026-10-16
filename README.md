@@ -54,9 +54,7 @@ Presets make the switching fast: keep "Default" for everyday work, and flip to y
 
 1. Download `WheresMyMouse.dmg` (or `WheresMyMouse.zip`) from the [latest release](https://github.com/andrewkamphey/WheresMyMouse/releases/latest), or the [nightly build](https://github.com/andrewkamphey/WheresMyMouse/releases/tag/nightly) for the newest commit.
 2. Open it and drag **Where's My Mouse.app** onto the **Applications** shortcut.
-3. Open it. The app isn't notarized by Apple, so the first launch is blocked:
-   - Click **Done** on the warning, then go to **System Settings → Privacy & Security** and click **Open Anyway** next to Where's My Mouse.
-   - Or run once in Terminal: `xattr -dr com.apple.quarantine "/Applications/Where's My Mouse.app"`
+3. Open it. Releases are signed with Developer ID and notarized by Apple, so macOS opens them normally.
 4. Look for the pointer icon in your menu bar.
 
 ### Allow color changes
