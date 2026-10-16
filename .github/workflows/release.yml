@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install the Developer ID certificate
         env:
@@ -48,7 +48,7 @@ jobs:
           ditto -c -k --keepParent "Where's My Mouse.app" WheresMyMouse.zip
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: WheresMyMouse
           path: |
@@ -57,7 +57,7 @@ jobs:
 
       - name: Update nightly release
         if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly
           name: Nightly Build
@@ -72,7 +72,7 @@ jobs:
 
       - name: Create tagged release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/WheresMyMouse.zip
