@@ -139,10 +139,25 @@ final class PointerStore: ObservableObject {
         isApplyingPreset = true
         defer { isApplyingPreset = false }
         setSize(preset.size)
+        let colorsChange = !preset.fill.isClose(to: fill) || !preset.outline.isClose(to: outline)
         fill = preset.fill
         outline = preset.outline
         applyColorsWork?.cancel()
         CursorController.setColors(fill: fill, outline: outline)
+        if colorsChange { checkColorsAllowed(for: preset) }
+    }
+
+    /// Called once per launch when a preset's colors couldn't be applied, so the
+    /// missing permission doesn't fail silently (e.g. an app rule switching in the background).
+    var onColorsBlocked: ((Preset) -> Void)?
+    private var warnedColorsBlocked = false
+
+    private func checkColorsAllowed(for preset: Preset) {
+        guard !isSnapshot, CursorController.colorsSupported else { return }
+        hasFullDiskAccess = CursorController.hasFullDiskAccess
+        guard !hasFullDiskAccess, !warnedColorsBlocked else { return }
+        warnedColorsBlocked = true
+        onColorsBlocked?(preset)
     }
 
     /// While a preset is being edited, every change to the pointer saves into it live.

@@ -37,10 +37,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         item.button?.action = #selector(togglePopover(_:))
         statusItem = item
 
-        // Keep the popover sized to its SwiftUI content as sections grow or shrink.
+        // Keep the popover sized to its SwiftUI content as sections grow or shrink,
+        // and badge the menu bar icon while colors are blocked.
         resize = store.objectWillChange.sink { [weak self] _ in
-            DispatchQueue.main.async { self?.fitPopover() }
+            DispatchQueue.main.async { self?.fitPopover(); self?.updateIcon() }
         }
+        store.onColorsBlocked = { [weak self] preset in self?.warnColorsBlocked(preset) }
+        updateIcon()
     }
 
     /// wheresmymouse://recipe links from the website's Cursor Recipes.
@@ -66,6 +69,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.contentViewController?.view.window?.makeKey()
     }
 
+    private var colorsBlocked: Bool { CursorController.colorsSupported && store?.hasFullDiskAccess == false }
+
+    private func updateIcon() {
+        guard let button = statusItem?.button else { return }
+        let blocked = colorsBlocked
+        button.image = blocked ? Self.blockedIcon : Self.menuBarIcon
+        button.toolTip = blocked ? "Where's My Mouse? (colors need Full Disk Access)" : "Where's My Mouse?"
+    }
+
+    /// Shown once per launch when a preset (often an app rule) couldn't change colors.
+    private func warnColorsBlocked(_ preset: Preset) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Pointer colors are blocked"
+        alert.informativeText = "“\(preset.name)” changed the size, but its colors need Full Disk Access.\n\n"
+            + "In Privacy & Security → Full Disk Access, add Where's My Mouse. If it's already listed, "
+            + "remove it with − and add it again (needed once after updating), then reopen the app."
+        alert.addButton(withTitle: "Open Full Disk Access")
+        alert.addButton(withTitle: "Not Now")
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn { CursorController.openFullDiskAccessSettings() }
+    }
+
     private func fitPopover() {
         guard let view = hosting?.view else { return }
         let size = view.fittingSize
@@ -87,5 +113,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return true
         }
         return image
+    }()
+
+    /// The menu bar icon with an orange warning dot.
+    private static let blockedIcon: NSImage = {
+        let base = menuBarIcon
+        return NSImage(size: NSSize(width: 18, height: 18), flipped: false) { _ in
+            base.draw(in: NSRect(x: 0, y: 0, width: 12, height: 18))
+            let dot = NSBezierPath(ovalIn: NSRect(x: 10, y: 1, width: 8, height: 8))
+            NSColor.systemOrange.setFill()
+            dot.fill()
+            return true
+        }
     }()
 }

@@ -205,7 +205,7 @@ struct MenuView: View {
             Label("Colors need Full Disk Access", systemImage: "exclamationmark.triangle.fill")
                 .font(.callout.weight(.semibold))
                 .foregroundColor(.orange)
-            Text("Size works without it. Add Where's My Mouse under Privacy & Security → Full Disk Access.")
+            Text("Presets and app rules only change the size until it's on. Add Where's My Mouse under Privacy & Security → Full Disk Access. Already listed? Remove it with − and add it again (needed once after updating), then reopen the app.")
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
