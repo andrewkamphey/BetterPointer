@@ -4,10 +4,13 @@
 #   ./build.sh             build "dist/Where's My Mouse.app"
 #   ./build.sh --install   build, copy to /Applications, and launch
 #   ./build.sh --dmg       build, then make dist/WheresMyMouse.dmg (drag-to-Applications)
+#   ./build.sh --notarize  --dmg, then notarize and staple it (needs a Developer ID identity
+#                          and APPLE_ID, APPLE_TEAM_ID, APPLE_APP_PASSWORD)
 #
 # Env:
 #   ARCH=universal         build arm64 + x86_64 (default: this Mac's arch)
-#   SIGN_IDENTITY="Name"   codesign identity. Defaults to "WheresMyMouse Self-Signed"
+#   SIGN_IDENTITY="Name"   codesign identity. Defaults to a "Developer ID Application" identity
+#                          if one is in the keychain, else "WheresMyMouse Self-Signed"
 #                          if scripts/setup-signing.sh has been run, else ad-hoc "-".
 #                          A stable identity keeps Full Disk Access across rebuilds.
 set -euo pipefail
@@ -20,7 +23,10 @@ APP="dist/$APP_NAME.app"
 ARCH="${ARCH:-$(uname -m)}"
 SELF_SIGNED="WheresMyMouse Self-Signed"
 if [[ -z "${SIGN_IDENTITY:-}" ]]; then
-    if security find-certificate -c "$SELF_SIGNED" >/dev/null 2>&1; then
+    DEVELOPER_ID="$(security find-identity -v -p codesigning | sed -n 's/.*"\(Developer ID Application: [^"]*\)".*/\1/p' | head -1)"
+    if [[ -n "$DEVELOPER_ID" ]]; then
+        SIGN_IDENTITY="$DEVELOPER_ID"
+    elif security find-certificate -c "$SELF_SIGNED" >/dev/null 2>&1; then
         SIGN_IDENTITY="$SELF_SIGNED"
     else
         SIGN_IDENTITY="-"
@@ -48,32 +54,35 @@ fi
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 [[ -f Resources/AppIcon.icns ]] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 
-codesign --force --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
+if [[ "$SIGN_IDENTITY" == "Developer ID Application:"* ]]; then
+    # Notarization requires the hardened runtime and a secure timestamp.
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
+else
+    codesign --force --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
+fi
 echo "Built $APP (signed: $SIGN_IDENTITY)"
 
-if [[ "${1:-}" == "--dmg" ]]; then
+if [[ "${1:-}" == "--dmg" || "${1:-}" == "--notarize" ]]; then
     STAGING="build/dmg"
     rm -rf "$STAGING" "dist/$EXECUTABLE.dmg"
     mkdir -p "$STAGING"
     cp -R "$APP" "$STAGING/"
     ln -s /Applications "$STAGING/Applications"
-    # Not notarized yet, so macOS blocks the first open; say how to get past it.
-    cat > "$STAGING/If macOS blocks it.txt" <<'TXT'
-macOS says it can't verify "Where's My Mouse?" because the app isn't notarized by Apple yet.
-The code is open source: https://github.com/andrewkamphey/WheresMyMouse
-
-One-time fix:
-1. Drag Where's My Mouse? to Applications and open it.
-2. When macOS warns you, click Done.
-3. Open System Settings > Privacy & Security, scroll down, and click Open Anyway.
-   Then open the app again.
-
-Or run this once in Terminal:
-xattr -dr com.apple.quarantine "/Applications/Where's My Mouse.app"
-TXT
     hdiutil create -volname "$APP_NAME" -srcfolder "$STAGING" -ov -format UDZO "dist/$EXECUTABLE.dmg" >/dev/null
     rm -rf "$STAGING"
+    [[ "$SIGN_IDENTITY" != "-" ]] && codesign --force --timestamp --sign "$SIGN_IDENTITY" "dist/$EXECUTABLE.dmg"
     echo "Built dist/$EXECUTABLE.dmg"
+fi
+
+if [[ "${1:-}" == "--notarize" ]]; then
+    : "${APPLE_ID:?}" "${APPLE_TEAM_ID:?}" "${APPLE_APP_PASSWORD:?}"
+    echo "Notarizing (usually a few minutes)…"
+    xcrun notarytool submit "dist/$EXECUTABLE.dmg" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+        --password "$APPLE_APP_PASSWORD" --wait --timeout 30m
+    xcrun stapler staple "dist/$EXECUTABLE.dmg"
+    xcrun stapler staple "$APP"   # the DMG's ticket covers the app too, for the zip
+    spctl --assess --type open --context context:primary-signature -v "dist/$EXECUTABLE.dmg"
+    echo "Notarized dist/$EXECUTABLE.dmg"
 fi
 
 if [[ "${1:-}" == "--install" ]]; then
