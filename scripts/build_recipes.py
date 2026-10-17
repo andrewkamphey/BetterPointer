@@ -158,7 +158,7 @@ def page(index):
       <a class="hide-sm" href="/#features">Features</a>
       <a class="hide-sm" href="/#faq">FAQ</a>
       <a class="hide-sm" href="https://github.com/andrewkamphey/WheresMyMouse">GitHub</a>
-      <a class="dl" href="https://wheresmymouse.com/download">Download</a>
+      <a class="dl btn-dl" href="https://wheresmymouse.com/download"><span class="dl-label">Download free</span></a>
     </div>
   </nav>
   <header class="rc-hero">
@@ -182,6 +182,7 @@ def page(index):
 </div>
 {footer}
 <script src="assets/recipes.js"></script>
+<script src="assets/get-app.js"></script>
 <script>
   document.addEventListener('click', function (e) {{
     var a = e.target.closest && e.target.closest('a[href*="/download"]');

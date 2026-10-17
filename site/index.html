@@ -119,6 +119,7 @@
   .set-foot a { font-weight: 800; }
   .settings-pop p { margin: 10px 2px 0; color: var(--faint); font-size: 12px; }
   nav .links { align-items: center; }
+  @media (max-width: 560px) { .brand .brand-name { display: none; } #settings-btn { white-space: nowrap; } }
   @media (max-width: 560px) { .settings-pop { position: fixed; left: 16px; right: 16px; top: 64px; width: auto; max-height: 80vh; overflow: auto; } }
 
   #showcase { padding-top: 32px; }
@@ -146,17 +147,7 @@
 
   .video { margin-top: 28px; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: #000; }
   .video video { display: block; width: 100%; height: auto; }
-
-  /* chat */
-  .chat { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; }
-  .bubbles { display: grid; gap: 12px; }
-  .bubble { display: flex; gap: 12px; align-items: flex-end; }
-  .avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 14px; flex: none; }
-  .msg { background: var(--panel-2); border: 1px solid var(--line); padding: 10px 14px; border-radius: 16px 16px 16px 4px; }
-  .msg small { display: block; color: var(--faint); font-size: 12px; margin-bottom: 2px; }
-  .bubble.me { flex-direction: row-reverse; }
-  .bubble.me .msg { background: var(--blue); border-color: transparent; border-radius: 16px 16px 4px 16px; }
-  .bubble.oh .msg { background: #fff; color: #0d0e16; font-weight: 900; font-size: 22px; }
+  .shake-note { margin-top: 22px; max-width: 760px; }
 
   /* desktop mockups: a Mac screen with a wallpaper, windows and pointers */
   .desk {
@@ -228,18 +219,6 @@
     .cycle4 > :nth-child(2), .cycle2 > :nth-child(1) { opacity: 1; }
   }
 
-  /* scroll-grown pointer: our own arrow replaces the cursor and grows 1x -> 10x down the page */
-  html.grow-ptr, html.grow-ptr * { cursor: none !important; }
-  #grow-ptr { position: fixed; left: 0; top: 0; z-index: 2147483647; pointer-events: none; width: 13px; height: auto;
-    transform-origin: 0 0; will-change: transform; opacity: 0; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)); }
-  html.grow-ptr #grow-ptr.on { opacity: 1; }
-  #grow-badge { position: fixed; right: 16px; bottom: 16px; z-index: 2147483646; display: none; align-items: center; gap: 10px;
-    background: rgba(13,14,22,0.88); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 5px 6px 5px 12px;
-    font-size: 12.5px; backdrop-filter: blur(8px); transition: opacity 0.4s, transform 0.4s; }
-  #grow-badge.idle { opacity: 0; transform: translateY(8px); pointer-events: none; }
-  #grow-badge b { font-variant-numeric: tabular-nums; }
-  #grow-badge button { border: 0; border-radius: 999px; padding: 4px 10px; font: inherit; font-size: 12px; font-weight: 700; background: var(--panel-2); color: var(--text); }
-  html.grow-ok #grow-badge { display: flex; }
 
   /* Google Sheets scene for Yours vs Ours */
   .gs { position: absolute; inset: 0; background: #fff; color: #202124; font-size: 1.25cqw; }
@@ -374,13 +353,7 @@
 
   .split { display: grid; grid-template-columns: 1fr 360px; gap: 48px; align-items: center; }
   .split img { width: 100%; border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
-  .ticks { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 12px; }
-  .ticks li { padding-left: 30px; position: relative; color: var(--muted); }
-  .ticks li::before { content: ""; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--blue); box-shadow: inset 0 0 0 5px #0d0e16; }
-  .ticks b { color: var(--text); }
 
-  .uses { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
-  .chip { background: var(--panel); border: 1px solid var(--line); padding: 9px 15px; border-radius: 999px; font-size: 15px; }
 
   .releases { margin-top: 26px; display: grid; gap: 12px; }
   .rel { display: grid; grid-template-columns: 110px 1fr; gap: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
@@ -400,7 +373,7 @@
 
   @media (max-width: 860px) {
     .uses-grid { grid-template-columns: 1fr; }
-    .chat, .split, .hero-grid { grid-template-columns: 1fr; }
+    .split, .hero-grid { grid-template-columns: 1fr; }
     .hero { text-align: center; }
     .grid { grid-template-columns: 1fr 1fr; }
   }
@@ -423,7 +396,7 @@
 
   <div class="wrap">
     <nav>
-      <a class="brand" href="#"><img src="assets/icon.png" alt="">Where's My Mouse?</a>
+      <a class="brand" href="#" aria-label="Where's My Mouse?"><img src="assets/icon.png" alt=""><span class="brand-name">Where's My Mouse?</span></a>
       <div class="links">
         <div class="settings">
           <button type="button" id="settings-btn" aria-expanded="false" aria-controls="settings-pop">
@@ -471,7 +444,7 @@
       <p class="points">Make it <b class="pt-big">bigger</b>. Make it <b class="q">colorful</b>. Make it <b>yours</b>.</p>
       <a class="btn" href="https://wheresmymouse.com/download">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.7 1.3 10.2.8 1.2 1.8 2.6 3.1 2.6 1.2-.1 1.7-.8 3.2-.8 1.5 0 1.9.8 3.2.8 1.3 0 2.2-1.2 3-2.4.9-1.4 1.3-2.7 1.3-2.8-.1 0-2.6-1-2.6-3.9zM13.9 5c.7-.8 1.1-1.9 1-3-1 0-2.2.7-2.9 1.5-.6.7-1.2 1.8-1 2.9 1.1.1 2.2-.6 2.9-1.4z"/></svg>
-        Download for Mac
+        <span class="dl-label">Download free for Mac</span>
       </a>
     </header>
   </div>
@@ -492,24 +465,7 @@
     <div class="video">
       <video src="assets/launch.mp4" poster="assets/launch-poster.jpg" autoplay muted loop playsinline disablepictureinpicture aria-label="15-second demo: a video call where nobody can find the pointer, then Where's My Mouse? makes it huge"></video>
     </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap chat">
-    <div>
-      <h2>Nobody can find it.<br>Not even you.</h2>
-      <p class="lead">Everyone says “just shake it.” And sure, shake your mouse and the pointer briefly balloons so you can spot it. Then it shrinks right back, and you're hunting again.</p>
-      <p class="lead"><b>macOS's shake tops out at 4×. Where's My Mouse? starts there.</b></p>
-      <p class="lead">What if you never had to shake it to find it? Where's My Mouse? keeps your pointer big all the time: <b>15× for real</b>, or <b>30×</b> with a pointer it draws itself, in a color nobody can miss. It shows up in your screen recordings too (tested in OBS).</p>
-    </div>
-    <div class="bubbles" aria-hidden="true">
-      <div class="bubble me"><div class="avatar" style="background:#2f7bff">Y</div><div class="msg"><small>You</small>ok so if you look right here…</div></div>
-      <div class="bubble"><div class="avatar" style="background:#7c4dff">S</div><div class="msg"><small>Sam</small>where??</div></div>
-      <div class="bubble"><div class="avatar" style="background:#ff9500">P</div><div class="msg"><small>Priya</small>what are you pointing at</div></div>
-      <div class="bubble"><div class="avatar" style="background:#34c759">L</div><div class="msg"><small>Leo</small>🤷</div></div>
-      <div class="bubble oh"><div class="avatar" style="background:#ff9500">P</div><div class="msg">OH.</div></div>
-    </div>
+    <p class="lead shake-note">Everyone says “just shake it.” But macOS's shake only reaches 4×, then shrinks right back. <b>Where's My Mouse? keeps it big, all the time.</b></p>
   </div>
 </section>
 
@@ -566,7 +522,7 @@
 
 <section id="app-rules">
   <div class="wrap">
-    <h2>Different looks for different apps.</h2>
+    <h2>Different looks for different apps</h2>
     <p class="lead">Set a different preset for each app, and your pointer switches the moment you click into it.</p>
     <ul class="why">
       <li><b>Stand out from the app.</b> Pick a pointer that contrasts with the app's own colors, so it never blends in.</li>
@@ -624,9 +580,9 @@
 
 <section id="features">
   <div class="wrap">
-    <h2>Small app. Huge pointer.</h2>
+    <h2>Small app. Huge pointer</h2>
     <div class="grid">
-      <div class="card"><div class="ico">📏</div><h3>Up to 30×</h3><p>1–10× on the slider, 15× with the real pointer, and up to 30× when you need it seen from space.</p></div>
+      <div class="card"><div class="ico">📏</div><h3>Up to 30×</h3><p>From a little bigger to visible from space. One slider.</p></div>
       <div class="card"><div class="ico">🎨</div><h3>Any fill, any outline</h3><p>Hot pink with a black edge? Yellow on white? Pick a swatch or any color you like.</p></div>
       <div class="card"><div class="ico">⚡</div><h3>Instantly change, from the menu bar</h3><p>No Dock icon, no digging through Accessibility settings.</p></div>
       <div class="card"><div class="ico">💾</div><h3>Presets</h3><p>Save "Recording", "Presenting", "Big Green". Switch in one click, update them anytime.</p></div>
@@ -638,37 +594,13 @@
 
 <section>
   <div class="wrap">
-    <div>
-      <h2>Everything in one little menu.</h2>
-      <ul class="ticks">
-        <li><b>Presets</b> with the apps pinned to them right on the row.</li>
-        <li><b>A size slider</b> with marks from 1× to 10×, plus an extra-large mode to 30×.</li>
-        <li><b>Color swatches</b> for fill and outline, or any custom color.</li>
-        <li><b>App rules</b> that switch presets for you, then go back to Default.</li>
-      </ul>
-      <div class="uses">
-        <span class="chip">🎥 Screen recordings</span><span class="chip">🧑‍🏫 Tutorials</span>
-        <span class="chip">📽️ Demos &amp; talks</span><span class="chip">📞 Video calls</span>
-        <span class="chip">🧑‍💻 Pair programming</span><span class="chip">👓 Low vision</span>
-        <span class="chip">🖥️ Big &amp; multi-monitor setups</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
     <h2>What's new</h2>
     <div class="releases">
       <div class="rel"><div class="v">v1.4.2<em>current</em></div><p>No more silent color failures: if a preset or app rule can't change colors because Full Disk Access is off, you get one clear warning and an orange dot on the menu bar icon.</p></div>
       <div class="rel"><div class="v">v1.4.1</div><p>Signed and notarized by Apple: no more “Apple could not verify” warning on first launch. After updating, turn Full Disk Access on again once (for colors).</p></div>
       <div class="rel"><div class="v">v1.4.0</div><p>Cursor Recipes: 32 ready-made looks (seasonal, pop culture, colors from around the world) in a new Recipes menu, plus “Add to app” buttons on <a href="/recipes">wheresmymouse.com/recipes</a>.</p></div>
-      <div class="rel"><div class="v">v1.3.0</div><p>Now runs on macOS 11 Big Sur and later. Size, Super shake and app rules work everywhere; pointer colors need macOS 12 or later.</p></div>
-      <div class="rel"><div class="v">v1.2.1</div><p>A cleaner menu: flat sections, a clearly bordered selection, chunkier rows, switches with short explanations, and app rules in tidy columns.</p></div>
-      <div class="rel"><div class="v">v1.2.0</div><p>Redesigned menu (bigger targets, status line, undo, ⌘1–9), Super shake, add apps right from a preset, clearer System vs Drawn sizes, and a switch for macOS's own shake to locate.</p></div>
-      <div class="rel"><div class="v">v1.1.0</div><p>New name: Where's My Mouse? App rules (per-app presets, active app or last opened), extra-large sizes to 30×, easier preset updates, rainbow menu bar icon.</p></div>
-      <div class="rel"><div class="v">v1.0.0</div><p>Size up to 10×, fill and outline colors, presets, launch at login.</p></div>
     </div>
+    <p class="fine"><a href="https://github.com/andrewkamphey/WheresMyMouse/releases">All releases on GitHub →</a></p>
   </div>
 </section>
 
@@ -689,9 +621,9 @@
 <div class="cta">
   <div class="wrap">
     <img src="assets/icon.png" alt="">
-    <h2>Stop asking.<br>Start pointing.</h2>
-    <p class="lead" style="margin:0 auto 26px">Free, tiny, and open source.</p>
-    <a class="btn" href="https://wheresmymouse.com/download">Download for Mac</a>
+    <h2>Stop asking.<br>Start pointing</h2>
+    <p class="lead" style="margin:0 auto 26px">Free, tiny, open source, and notarized by Apple.</p>
+    <a class="btn" href="https://wheresmymouse.com/download"><span class="dl-label">Download free for Mac</span></a>
     <a class="btn ghost" href="https://github.com/andrewkamphey/WheresMyMouse">View on GitHub</a>
   </div>
 </div>
@@ -731,65 +663,9 @@
     });
   })();
 </script>
-<svg id="grow-ptr" viewBox="0 0 62 100" aria-hidden="true">
-  <use id="grow-ptr-color" href="#arrow" fill="#34C759" stroke="#FFFFFF"/>
-</svg>
-<div id="grow-badge" role="status"><span>Pointer <b id="grow-size">1.0×</b></span><button type="button" id="grow-toggle">Normal pointer</button></div>
 <script>
-  // Our own arrow follows the mouse and grows from 1x at the top of the page to 10x at the bottom.
-  // Only with a real mouse/trackpad, never with reduced motion; the badge turns it off (remembered).
-  (function () {
-    var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!fine || calm) return;
-    var root = document.documentElement, ptr = document.getElementById('grow-ptr');
-    var sizeOut = document.getElementById('grow-size'), toggle = document.getElementById('grow-toggle');
-    var x = -100, y = -100, queued = false;
-    function stored() { try { return localStorage.getItem('wmm-grow') !== 'off'; } catch (e) { return true; } }
-    function store(on) { try { localStorage.setItem('wmm-grow', on ? 'on' : 'off'); } catch (e) {} }
-    function scale() {
-      var max = root.scrollHeight - window.innerHeight;
-      var t = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-      return 1 + 9 * t;
-    }
-    function draw() {
-      queued = false;
-      var s = scale();
-      // the arrow's tip sits at (4, 4) in its 62x100 box; keep the tip on the hotspot
-      var tip = 4 * 0.93 * (13 / 62) * s;
-      ptr.style.transform = 'translate(' + (x - tip) + 'px,' + (y - tip) + 'px) scale(' + s + ')';
-      sizeOut.textContent = s.toFixed(1) + '×';
-    }
-    function queue() { if (!queued) { queued = true; requestAnimationFrame(draw); } }
-    function set(on) {
-      root.classList.toggle('grow-ptr', on);
-      toggle.textContent = on ? 'Normal pointer' : 'Make it grow';
-      store(on);
-    }
-    root.classList.add('grow-ok');
-    set(stored());
-    document.addEventListener('pointermove', function (e) { x = e.clientX; y = e.clientY; ptr.classList.add('on'); queue(); }, { passive: true });
-    document.addEventListener('pointerleave', function () { ptr.classList.remove('on'); });
-    document.documentElement.addEventListener('mouseleave', function () { ptr.classList.remove('on'); });
-    var badge = document.getElementById('grow-badge'), idleTimer;
-    function wake() {
-      badge.classList.remove('idle');
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(function () { badge.classList.add('idle'); }, 2500);
-    }
-    window.addEventListener('scroll', function () { queue(); wake(); }, { passive: true });
-    document.addEventListener('pointermove', function (e) {
-      if (e.clientX > window.innerWidth - 260 && e.clientY > window.innerHeight - 120) wake();
-    }, { passive: true });
-    wake();
-    window.addEventListener('resize', queue);
-    toggle.addEventListener('click', function () { set(!root.classList.contains('grow-ptr')); });
-    draw();
-  })();
-</script>
-<script>
-  // Nav "Settings": a mini version of the app's menu. Fill, outline and size style the hero pointer
-  // and the arrow that follows your mouse; the look is remembered in this browser.
+  // Nav "Try now": a mini version of the app's menu. Fill, outline and size style the hero pointer
+  // and the Download buttons; the look is remembered in this browser.
   (function () {
     var btn = document.getElementById('settings-btn'), pop = document.getElementById('settings-pop');
     function open(on) { pop.hidden = !on; btn.setAttribute('aria-expanded', String(on)); }
@@ -800,7 +676,7 @@
     var DEFAULT = { fill: '#34C759', outline: '#FFFFFF' };
     var look = DEFAULT;
     try { look = JSON.parse(localStorage.getItem('wmm-look')) || DEFAULT; } catch (e) {}
-    var uses = [document.getElementById('hero-ptr-color'), document.getElementById('grow-ptr-color')];
+    var uses = [document.getElementById('hero-ptr-color')];
     var size = document.getElementById('set-size'), anim = document.getElementById('set-anim'), out = document.getElementById('set-size-out');
 
     function paint() {
@@ -839,7 +715,7 @@
   // Hero pointer: grows 1x -> 15x, holds, shrinks back. Settings can stop it at a fixed size.
   (function () {
     var svg = document.getElementById('hero-ptr'), label = document.getElementById('hero-size');
-    var MIN = 1 / 15, LOOP = 5200, fixed = null, start = performance.now();
+    var MIN = 1 / 15, LOOP = 5200, fixed = null, start = performance.now() - 2300; // first frame: big
     function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
     function show(size) { // 1..15
       svg.style.transform = 'scale(' + (size / 15) + ')';
@@ -874,5 +750,6 @@
   });
 </script>
 <script src="assets/recipes.js"></script>
+<script src="assets/get-app.js"></script>
 </body>
 </html>
