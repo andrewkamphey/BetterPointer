@@ -83,6 +83,9 @@
   }
   .btn:hover { text-decoration: none; transform: translateY(-1px); }
   .btn svg { width: 20px; height: 20px; }
+  /* Download buttons wear the pointer's look: green with a white outline, or whatever "Try now" sets */
+  .btn:not(.ghost) { background: var(--look-fill, #34C759); color: var(--look-ink, #0d0e16); border: 3px solid var(--look-outline, #FFFFFF);
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--look-fill, #34C759) 40%, transparent); transition: background-color .2s, border-color .2s, color .2s; }
   .btn.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); box-shadow: none; }
   .fine { color: var(--faint); font-size: 14px; margin-top: 14px; }
   .nomore { font-weight: 800; font-size: 19px; margin: -14px 0 28px; color: var(--blue-soft); }
@@ -424,7 +427,7 @@
       <div class="links">
         <div class="settings">
           <button type="button" id="settings-btn" aria-expanded="false" aria-controls="settings-pop">
-            <img src="assets/favicon.png" alt="" width="16" height="16"> Try now <span aria-hidden="true">▾</span>
+            Try now <span aria-hidden="true">▾</span>
           </button>
           <div class="settings-pop" id="settings-pop" hidden>
             <div class="set-head"><b>Where's My Mouse?</b><span id="set-size-out">1×</span></div>
@@ -802,6 +805,12 @@
 
     function paint() {
       uses.forEach(function (u) { if (u) { u.setAttribute('fill', look.fill); u.setAttribute('stroke', look.outline); } });
+      // the Download buttons match: fill, outline, and text that stays readable on the fill
+      var n = parseInt(look.fill.slice(1), 16), lum = (0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255;
+      var root = document.documentElement.style;
+      root.setProperty('--look-fill', look.fill);
+      root.setProperty('--look-outline', look.outline);
+      root.setProperty('--look-ink', lum > 0.55 ? '#0d0e16' : '#FFFFFF');
       ['fill', 'outline'].forEach(function (k) {
         pop.querySelectorAll('[data-' + k + ']').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset[k] === look[k])); });
         pop.querySelector('[data-custom=' + k + ']').value = look[k].toLowerCase();
